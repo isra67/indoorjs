@@ -1,0 +1,25 @@
+
+    <div class="container-fluid">
+      <div class="jumbotron">
+        <div class="container text-center">
+          <h1> {{ msgs }} </h1>
+          <p>The best web config app...</p>
+        </div>
+      </div>
+
+      <div class="row content">
+	<div class="col-sm-12 text-left">
+	    <h3>Status</h3>
+	</div>
+	<div class="col-sm-12 text-left">
+	    <h4>Connection status</h4> {{ connection }}
+	</div>
+      </div>
+    </div>
+
+    <script>
+    $(function() {
+        highlightMenuItem();
+
+    });
+    </script>

@@ -1,0 +1,37 @@
+    <div class="container-fluid">
+      <div class="row content">
+	<h3>Configuration</h3>
+        <div class="row content" ng-show="keys.length > 0">
+	    <div class="col-sm-8 col-sm-offset-2 text-left">
+		<button class="btn btn-md" type="button"
+		    ng-disabled="updateCfg == 0" ng-click="applyCfgChanges()"> Apply </button>
+	    </div>
+	</div>
+        <div class="row content">
+	  <div id="content" class="col-sm-12 text-left" ng-show="keys.length > 0">
+	    <ul>
+	    <li ng-repeat="k in keys">
+		<h4><span class="label label-info">{{ k }}</span></h4>
+		<div ng-repeat="(ke,va) in customers[k]" class="row">
+		    <span class="col-sm-3 text-right">{{ ke }}</span>
+		    <input type="text" maxlength="128" class="col-sm-6"
+			ng-change="changeItem(k,ke,somename_$$k.id)"
+			ng-model-options="{ updateOn: 'blur' }"
+			ng-model="somename_$$k.id" ng-init="somename_$$k.id=va"
+			ng-disabled="(va.indexOf('button_') > -1) || (ke.indexOf('app_') > -1) || (ke.indexOf('_log') > 0) || (ke === 'uptime') || (ke === 'serial') || (ke === 'screen_orientation')" />
+		</div>
+	    </li>
+	    </ul>
+	  </div>
+	</div>
+
+	<div class="col-sm-4 col-sm-offset-4 text-center" ng-show="keys.length == 0">No INI found</div>
+      </div>
+    </div>
+
+    <script>
+    $(function() {
+        highlightMenuItem();
+
+    });
+    </script>

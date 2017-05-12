@@ -1,0 +1,95 @@
+    <div class="container-fluid">
+      <div class="row content">
+        <h3>Logging</h3>
+
+	<div class="col-sm-8 col-sm-offset-2 text-left">
+	  <button id="btnStart" type="button" class="btn btn-md">Start</button>
+	  <button id="btnStopp" type="button" class="btn btn-md disabled">Stop</button>
+	  <button id="btnSelec" type="button" class="btn btn-md">Select</button>
+	  <button id="btnClear" type="button" class="btn btn-md">Clear</button>
+        </div>
+      </div>
+
+      <div class="row content">
+	<div id="content" class="col-sm-12 text-left">
+	    <div id="logcontent">Waiting...</div>
+	</div>
+      </div>
+    </div>
+
+    <script src="socket.io/socket.io.js"></script>
+
+    <script>
+
+    function selectText(element) {
+      var doc = document
+        , text = doc.getElementById(element)
+        , range, selection;
+
+      if (doc.body.createTextRange) {
+        range = doc.body.createTextRange();
+        range.moveToElementText(text);
+        range.select();
+      } else
+      if (window.getSelection) {
+        selection = window.getSelection();
+        range = doc.createRange();
+        range.selectNodeContents(text);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      }
+    }
+
+    $(function() {
+	console.log( "ready!", window.location.hostname );
+
+        highlightMenuItem();
+
+	var socket = io.connect('http://' + window.location.hostname);
+
+        socket.on('connect', function() {
+	    $('#logcontent').html("Connected...<br/>");
+//	    console.log( "connect" );
+    	    socket.emit('msg_1', 'Hello World from client');
+        });
+
+	socket.on('messages', function(data) {
+	    if (logActive > 0) {
+	      try {
+		$('<span>' + data + '</span><br/>').appendTo('#logcontent');
+		$('div#logcontent').animate({"scrollTop": $('div#logcontent')[0].scrollHeight}, 1);
+	      }
+	      catch(err) {
+	      }
+	    }
+	});
+
+	$('#logcontent').css({'height':'450px', 'overflow':'auto', 'margin-top':'16px', 'border':'1px solid black'});
+
+	$('#btnStart').click(function(){
+	    logActive = 1;
+	    $('#btnStart').addClass('disabled');
+	    $('#btnStopp').removeClass('disabled');
+	    $('#btnStart').prop( "disabled", true );
+	    $('#btnStopp').prop( "disabled", false );
+	});
+
+	$('#btnStopp').click(function(){
+	    logActive = 0;
+	    $('#btnStart').removeClass('disabled');
+	    $('#btnStopp').addClass('disabled');
+	    $('#btnStart').prop( "disabled", false );
+	    $('#btnStopp').prop( "disabled", true );
+	});
+
+	$('#btnSelec').click(function(){
+//	    console.log(this);
+	    selectText('logcontent');
+	});
+
+	$('#btnClear').click(function(){
+	    $('#logcontent').html('');
+	});
+
+    });
+    </script>

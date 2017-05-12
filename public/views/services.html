@@ -1,0 +1,23 @@
+    <div class="container-fluid">
+      <div class="row content">
+	<h3>Services</h3>
+
+        <div class="row content">
+            <div class="col-sm-8 col-sm-offset-2 text-left">
+                <button class="btn btn-md" type="button" ng-click="restartApp()"> Restart RPi GUI application </button>
+            </div>
+        </div>
+
+	<div class="col-sm-12 text-left" ng-show="logs.length > 0">
+	</div>
+
+	<div class="col-sm-4 col-sm-offset-4 text-center" ng-show="logs.length == 0">No Services found</div>
+      </div>
+    </div>
+
+    <script>
+    $(function() {
+        highlightMenuItem();
+
+    });
+    </script>
