@@ -13,12 +13,16 @@
 	    <li ng-repeat="k in keys">
 		<h4><span class="label label-info">{{ k }}</span></h4>
 		<div ng-repeat="(ke,va) in customers[k]" class="row">
-		    <span class="col-sm-3 text-right">{{ ke }}</span>
+		  <span ng-hide="(va.indexOf('button_') > -1) || (ke === 'uptime')">
+		    <span class="col-sm-4 text-right">
+			{{langtxt(ke)}}
+		    </span>
 		    <input type="text" maxlength="128" class="col-sm-6"
 			ng-change="changeItem(k,ke,somename_$$k.id)"
 			ng-model-options="{ updateOn: 'blur' }"
 			ng-model="somename_$$k.id" ng-init="somename_$$k.id=va"
 			ng-disabled="(va.indexOf('button_') > -1) || (ke.indexOf('app_') > -1) || (ke.indexOf('_log') > 0) || (ke === 'uptime') || (ke === 'serial') || (ke === 'screen_orientation')" />
+		  </span>
 		</div>
 	    </li>
 	    </ul>

@@ -21,27 +21,8 @@
 
     <script>
 
-    function selectText(element) {
-      var doc = document
-        , text = doc.getElementById(element)
-        , range, selection;
-
-      if (doc.body.createTextRange) {
-        range = doc.body.createTextRange();
-        range.moveToElementText(text);
-        range.select();
-      } else
-      if (window.getSelection) {
-        selection = window.getSelection();
-        range = doc.createRange();
-        range.selectNodeContents(text);
-        selection.removeAllRanges();
-        selection.addRange(range);
-      }
-    }
-
     $(function() {
-	console.log( "ready!", window.location.hostname );
+//	console.log( "ready!", window.location.hostname );
 
         highlightMenuItem();
 
@@ -59,8 +40,7 @@
 		$('<span>' + data + '</span><br/>').appendTo('#logcontent');
 		$('div#logcontent').animate({"scrollTop": $('div#logcontent')[0].scrollHeight}, 1);
 	      }
-	      catch(err) {
-	      }
+	      catch(err) { }
 	    }
 	});
 

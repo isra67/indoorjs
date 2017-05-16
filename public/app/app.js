@@ -16,6 +16,10 @@ app.factory("services", ['$http', function($http) {
         return $http.get(serviceBase + 'all');
     }
 
+    obj.getFileContent = function(name, dir='tmp') {
+        return $http.get(serviceBase + 'getfile/' + dir + '/' + name);
+    }
+
     obj.applyCfgChanges = function() {
         return $http.post(serviceBase + 'apply');
     }
@@ -28,23 +32,6 @@ app.factory("services", ['$http', function($http) {
         });
     };
 
-/*
-    obj.getCustomer = function(customerID){
-        return $http.get(serviceBase + 'customer?id=' + customerID);
-    }
-
-    obj.insertCustomer = function (customer) {
-    return $http.post(serviceBase + 'insertCustomer', customer).then(function (results) {
-        return results;
-    });
-	};
-
-	obj.deleteCustomer = function (id) {
-	    return $http.delete(serviceBase + 'deleteCustomer?id=' + id).then(function (status) {
-	        return status.data;
-	    });
-	};
-//*/
     return obj;
 }]);
 
@@ -53,24 +40,28 @@ app.controller('configCtrl', function ($scope, services) {
     $scope.keys = [];
     $scope.updateCfg = 0;
 
+    $scope.langtxt = function(key) {
+	return langstr[key] || key;
+    };
+
     services.getIniItems().then(function(data){
         $scope.customers = data.data;
 	$scope.keys = Object.keys(data.data);
     });
 
     $scope.changeItem = function(sect,item,vals) {
-	console.log('changeItem:',sect,item,vals);
+//	console.log('changeItem:',sect,item,vals);
 	$scope.updateCfg = 1;
 	services.updateIniItem(sect,item,vals).then(function(data){
-	    console.log('changeItem:',data);
+//	    console.log('changeItem:',data);
 	});
     };
 
     $scope.applyCfgChanges = function() {
-	console.log('applyCfgChanges:');
+//	console.log('applyCfgChanges:');
 	$scope.updateCfg = 0;
 	services.applyCfgChanges().then(function(data){
-	    console.log('applyCfgChanges:',data);
+//	    console.log('applyCfgChanges:',data);
 	});
     };
 });
@@ -80,10 +71,65 @@ app.controller('logCtrl', function ($scope, services) {
 });
 
 app.controller('serviceCtrl', function ($scope, services) {
+    $scope.msg = '';
+    $scope.logs = [];
+    $scope.cntrs = {};
+    $scope.keys = [];
+
+    $scope.langtxt = function(key) {
+	return langstr[key] || key;
+    };
+
+    $scope.reinitScopes = function() {
+	$scope.msg = '';
+	$scope.logs = [];
+	$scope.cntrs = {};
+	$scope.keys = [];
+    };
+
     $scope.restartApp = function() {
-	console.log('restartApp:');
+//	console.log('restartApp:');
+	$scope.reinitScopes();
 	services.applyCfgChanges().then(function(data){
-	    console.log('restartApp:',data);
+//	    console.log('restartApp:',data);
+	    $scope.msg = data.data;
+	});
+    };
+
+    $scope.getCallCntrs = function() {
+	console.log('getCallCntrs:');
+	$scope.reinitScopes();
+	services.getFileContent('call-cntr.dat').then(function(data){
+	    console.log('getCallCntrs:',data.data);
+	    $scope.cntrs = data.data;
+	    $scope.keys = Object.keys(data.data);
+	});
+    };
+
+    $scope.getCallLog = function() {
+//	console.log('getCallLog:');
+	$scope.reinitScopes();
+	services.getFileContent('call-log.dat').then(function(data){
+//	    console.log('getCallLog:',data.data);
+	    $scope.logs = data.data;
+	});
+    };
+
+    $scope.getAppLog = function() {
+//	console.log('getAppLog:');
+	$scope.reinitScopes();
+	services.getFileContent('app-log.dat').then(function(data){
+//	    console.log('getAppLog:',data.data);
+	    $scope.logs = data.data;
+	});
+    };
+
+    $scope.getSipLog = function() {
+//	console.log('getSipLog:');
+	$scope.reinitScopes();
+	services.getFileContent('sip-log.dat').then(function(data){
+//	    console.log('getSipLog:',data.data);
+	    $scope.logs = data.data;
 	});
     };
 });
@@ -94,7 +140,7 @@ app.controller('mainCtrl', function ($scope, services) {
     var timerFlag = 0;
 
     $scope.getStatusApp = function() {
-	console.log('getStatusApp:');
+//	console.log('getStatusApp:');
 	services.getAppStatus().then(function(data){
 	    var d = data.data;
 	    console.log('getAppStatus:',d);

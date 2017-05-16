@@ -14,13 +14,12 @@ var express = require('express')
   , appConnectionFlag = 0
   , webClients = [];
 
+
 app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.use(express.static(__dirname + '/node_modules'));
-
-//app.use('/sockets', io);
 
 
 /** express routes */
@@ -29,44 +28,26 @@ app.get('/', function(req, res) {
 //  res.redirect('/index.html');
 });
 
-/*
-// get all
-app.get('/log', function(req, res) {
-    console.log('log');
-});
-// get all
-app.get('/services', function(req, res) {
-    console.log('services');
-});
-
-
-/*
-app.get('/expert', function(req, res){
-  res.redirect('/index.html');
-});
-
-app.get('/secure', function(req, res){
-  res.render('../index.html');
-});
-//*/
-
+/** API */
 // get all
 app.get('/app/all', function(req, res) {
     var config = ini.parse(fs.readFileSync(INI_FILE, 'utf-8'));
 
-    console.log('All');//, config);
+//    console.log('All');//, config);
     res.json(config);
 });
 
 // get status
 app.get('/app/status', function(req, res) {
-    console.log('Status');
-    res.json({connection: appConnectionFlag});
+//    console.log('Status');
+    var s = "{'connection': appConnectionFlag}",
+	v = eval("(" + s + ")");
+    res.json(v);
 });
 
 // restart python app
 app.post('/app/apply', function(req, res) {
-    console.log('Apply');
+//    console.log('Apply');
     ps.lookup({
       command: 'python'
       }, function(err, resultList) {
@@ -80,14 +61,14 @@ app.post('/app/apply', function(req, res) {
 
         resultList.forEach(function(process) {
           if (process) {
-            console.log( 'PID: %s, COMMAND: %s, ARGUMENTS: %s', process.pid, process.command, process.arguments );
+//            console.log( 'PID: %s, COMMAND: %s, ARGUMENTS: %s', process.pid, process.command, process.arguments );
 	    ppid = process.pid;
 	    ps.kill(process.pid, function(err) {
 	      if (err) {
         	res.json(err);
     		throw new Error( err );
 	      } else {
-    		console.log( 'Process %s has been killed!', ppid);
+//    		console.log( 'Process %s has been killed!', ppid);
 	      }
 	    });
           }
@@ -101,10 +82,18 @@ app.post('/app/update', function(req, res) {
     var config = ini.parse(fs.readFileSync(INI_FILE, 'utf-8')),
 	sect = req.body.sect, item = req.body.item, vals = req.body.vals;
 
-    console.log('update', sect,item,vals);
+//    console.log('update', sect,item,vals);
     config[sect][item] = vals;
     fs.writeFileSync(INI_FILE, ini.stringify(config));
     res.json('OK');
+});
+
+// read JSON file
+app.get('/app/getfile/:dir/:name', function(req, res) {
+    var name = '/' + req.params.dir + '/' + req.params.name,
+	fcontent = fs.readFileSync(name, 'utf-8');
+//    console.log('getfile', name, fcontent);
+    res.json(eval("(" + fcontent + ")"));
 });
 
 
@@ -149,7 +138,7 @@ io.on('connection', function(client) {
     webClients.push(client);
 
     client.on('msg_1', function(data) {
-        console.log(data);
+//        console.log(data);
 	client.emit('messages', 'Hello from server');
     });
 
