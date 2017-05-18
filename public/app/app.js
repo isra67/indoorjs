@@ -1,31 +1,38 @@
 
-var app = angular.module('myApp', ['ngRoute']);
-
 var VERSION_STR = 'WebIndoor 1.0';
 
+var app = angular.module('myApp', ['ngRoute']);
+
+
+//**  */
 app.factory("services", ['$http', function($http) {
     var serviceBase = '/app/'
       , obj = {}
       , headercfg = {}; //{ headers : { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;' }};
 
+    //**  */
     obj.getAppStatus = function() {
         return $http.get(serviceBase + 'status');
     }
 
+    //**  */
     obj.getIniItems = function() {
         return $http.get(serviceBase + 'all');
     }
 
+    //**  */
     obj.getFileContent = function(name, dir='tmp') {
         return $http.get(serviceBase + 'getfile/' + dir + '/' + name);
     }
 
+    //**  */
     obj.applyCfgChanges = function() {
         return $http.post(serviceBase + 'apply');
     }
 
+    //**  */
     obj.updateIniItem = function(sect,item,vals) {
-	console.log('updateIniItem:',sect,item,vals);
+//	console.log('updateIniItem:',sect,item,vals);
         return $http.post(serviceBase + 'update', {sect: sect, item: item, vals: vals}, headercfg)
 		.then(function(status) {
             return status.data;
@@ -35,51 +42,100 @@ app.factory("services", ['$http', function($http) {
     return obj;
 }]);
 
+
+//**  */
 app.controller('configCtrl', function ($scope, services) {
     $scope.customers = {};
+    $scope.configbackup = {};
     $scope.keys = [];
     $scope.updateCfg = 0;
+    $scope.defcfgkeys = Object.keys(defcfg);
 
-    $scope.langtxt = function(key) {
-	return langstr[key] || key;
+    //**  */
+    $scope.cfgItemType = function(key) {
+//	console.log('cfgItemType:',key);
+	var i = $scope.defcfgkeys.indexOf(key);
+	if (i < 0) return [];
+	if (defcfg[key]['type'] !== 'sel') return [];
+//	console.log('cfgItemType:',key,i,defcfg[key]['options']);
+	return defcfg[key]['options'].split(',');
     };
 
-    services.getIniItems().then(function(data){
-        $scope.customers = data.data;
-	$scope.keys = Object.keys(data.data);
-    });
-
+    //**  */
     $scope.changeItem = function(sect,item,vals) {
 //	console.log('changeItem:',sect,item,vals);
 	$scope.updateCfg = 1;
-	services.updateIniItem(sect,item,vals).then(function(data){
-//	    console.log('changeItem:',data);
-	});
+	$scope.customers[sect][item] = vals;
+//	services.updateIniItem(sect,item,vals).then(function(data){
+////	    console.log('changeItem:',data);
+//	});
     };
 
-    $scope.applyCfgChanges = function() {
-//	console.log('applyCfgChanges:');
-	$scope.updateCfg = 0;
-	services.applyCfgChanges().then(function(data){
-//	    console.log('applyCfgChanges:',data);
-	});
+    //**  */
+    $scope.saveConfigItems = function() {
+	console.log('saveConfigItems 1:');
+	$scope.updateCfg = 2;
+	for (var sect in $scope.customers) {
+	    if ($scope.customers.hasOwnProperty(sect)) {
+		for (var item in $scope.customers[sect]) {
+		    if ($scope.customers[sect].hasOwnProperty(item)) {
+			if ($scope.customers[sect][item] != $scope.configbackup[sect][item]) {
+			    // do stuff
+			    services.updateIniItem(sect,item,$scope.customers[sect][item]).then(function(data){
+//				console.log('changeItem:',data);
+			    });
+			}
+		    }
+		}
+	    }
+	}
     };
+
+    //**  */
+    services.getIniItems().then(function(data) {
+	var cfg = data.data, sortcfg = {};
+
+	// sorting keys in INI:
+	for (var sect in cfg) {
+	    if (cfg.hasOwnProperty(sect)) {
+		sortcfg[sect] = {};
+		var items = Object.keys(cfg[sect]);
+		if (sect === 'common') items = items.sort();
+		for (var item in items) {
+		    if (cfg[sect].hasOwnProperty(items[item])) {
+			sortcfg[sect][items[item]] = cfg[sect][items[item]];
+//			console.log('cyc init:',sect, items[item]);
+		    }
+		}
+	    }
+	}
+
+        $scope.customers = sortcfg;
+	$scope.configbackup = JSON.parse(JSON.stringify(cfg));
+	$scope.keys = Object.keys(cfg);
+    });
 });
 
+
+//**  */
 app.controller('logCtrl', function ($scope, services) {
     $scope.logs = [];
 });
 
+
+//**  */
 app.controller('serviceCtrl', function ($scope, services) {
     $scope.msg = '';
     $scope.logs = [];
     $scope.cntrs = {};
     $scope.keys = [];
 
-    $scope.langtxt = function(key) {
+    //**  */
+/*    $scope.langtxt = function(key) {
 	return langstr[key] || key;
     };
 
+    //**  */
     $scope.reinitScopes = function() {
 	$scope.msg = '';
 	$scope.logs = [];
@@ -87,6 +143,7 @@ app.controller('serviceCtrl', function ($scope, services) {
 	$scope.keys = [];
     };
 
+    //**  */
     $scope.restartApp = function() {
 //	console.log('restartApp:');
 	$scope.reinitScopes();
@@ -96,16 +153,18 @@ app.controller('serviceCtrl', function ($scope, services) {
 	});
     };
 
+    //**  */
     $scope.getCallCntrs = function() {
-	console.log('getCallCntrs:');
+//	console.log('getCallCntrs:');
 	$scope.reinitScopes();
 	services.getFileContent('call-cntr.dat').then(function(data){
-	    console.log('getCallCntrs:',data.data);
+//	    console.log('getCallCntrs:',data.data);
 	    $scope.cntrs = data.data;
 	    $scope.keys = Object.keys(data.data);
 	});
     };
 
+    //**  */
     $scope.getCallLog = function() {
 //	console.log('getCallLog:');
 	$scope.reinitScopes();
@@ -115,6 +174,7 @@ app.controller('serviceCtrl', function ($scope, services) {
 	});
     };
 
+    //**  */
     $scope.getAppLog = function() {
 //	console.log('getAppLog:');
 	$scope.reinitScopes();
@@ -124,6 +184,7 @@ app.controller('serviceCtrl', function ($scope, services) {
 	});
     };
 
+    //**  */
     $scope.getSipLog = function() {
 //	console.log('getSipLog:');
 	$scope.reinitScopes();
@@ -134,62 +195,71 @@ app.controller('serviceCtrl', function ($scope, services) {
     };
 });
 
+
+//**  */
 app.controller('mainCtrl', function ($scope, services) {
-    $scope.msgs = VERSION_STR;
+//    $scope.msgs = VERSION_STR;
     $scope.connection = '?';
     var timerFlag = 0;
 
+    //**  */
     $scope.getStatusApp = function() {
 //	console.log('getStatusApp:');
 	services.getAppStatus().then(function(data){
 	    var d = data.data;
-	    console.log('getAppStatus:',d);
+//	    console.log('getAppStatus:',d);
 	    $scope.connection = d.connection;
 	});
     };
 
+    //**  */
     if (timerFlag == 0) {
 	$scope.getStatusApp();
 	timerFlag = setInterval($scope.getStatusApp, 5000);
     }
-    console.log('mainCtrl:');
+//    console.log('mainCtrl:');
 });
 
-app.controller('basicCtrl', function ($scope, services) {
+
+//**  */
+app.controller('basicCtrl', function ($scope, $location, $compile, services) {
     $scope.msgs = VERSION_STR;
+
+    //**  */
+    $scope.langtxt = function(key) {
+	return langstr[key] || key;
+    };
+
+    //**  */
+    $scope.modalChange = function(el,cb) {
+	// remove and reinsert the element to force angular
+	// to forget about the current element
+	console.log('modalChange:', $scope.updateCfg, el, cb);
+	$(el).replaceWith($(el));
+
+	// change ng-click
+	$(el).attr('ng-click',cb);
+	$(el).prop('ng-click',cb);
+
+	// compile the element
+	$compile($(el))($scope);
+
+//	console.log('modalChange:', $scope.updateCfg, el, cb);
+    };
+
+    //**  */
+    $scope.applyCfgChanges = function() {
+//	console.log('applyCfgChanges:');
+//	$scope.updateCfg = 0;
+	services.applyCfgChanges().then(function(data){
+//	    console.log('applyCfgChanges:',data);
+	    $location.path('/');
+	});
+    };
 });
 
-/*
-app.controller('editCtrl', function ($scope, $rootScope, $location, $routeParams, services, customer) {
-    var customerID = ($routeParams.customerID) ? parseInt($routeParams.customerID) : 0;
-    $rootScope.title = (customerID > 0) ? 'Edit Customer' : 'Add Customer';
-    $scope.buttonText = (customerID > 0) ? 'Update Customer' : 'Add New Customer';
-      var original = customer.data;
-      original._id = customerID;
-      $scope.customer = angular.copy(original);
-      $scope.customer._id = customerID;
 
-      $scope.isClean = function() {
-        return angular.equals(original, $scope.customer);
-      }
-
-      $scope.deleteCustomer = function(customer) {
-        $location.path('/');
-        if(confirm("Are you sure to delete customer number: "+$scope.customer._id)==true)
-        services.deleteCustomer(customer.customerNumber);
-      };
-
-      $scope.saveCustomer = function(customer) {
-        $location.path('/');
-        if (customerID <= 0) {
-            services.insertCustomer(customer);
-        }
-        else {
-            services.updateCustomer(customerID, customer);
-        }
-    };
-});//*/
-
+//**  */
 app.config(function($routeProvider, $locationProvider, $httpProvider) {
     $routeProvider
       .when('/', {
@@ -241,6 +311,8 @@ app.config(function($routeProvider, $locationProvider, $httpProvider) {
     $locationProvider.html5Mode(true);
 });
 
+
+//**  */
 app.run(['$location', '$rootScope', function($location, $rootScope) {
     $rootScope.$on('$routeChangeSuccess', function (event, current, previous) {
         $rootScope.title = current.$$route.title;

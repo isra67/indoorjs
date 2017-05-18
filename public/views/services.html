@@ -18,23 +18,23 @@
             <p><button class="btn btn-md" type="button" title="Display SIP log" ng-click="getSipLog()">
 		SIP log
 	    </button></p>
-            <p><button class="btn btn-md" type="button" title="Restart RPi GUI application" ng-click="restartApp()">
-		Restart GUI app
+            <p><button id="rstApp" class="btn btn-md" type="button" title="Restart RPi GUI application">
+		Restart app
 	    </button></p>
 	</div>
 
 	<div class="col-sm-offset-2 text-left">
 	    <div ng-show="msg != ''"> {{ msg }} </div>
 
-	    <div class="col-sm-offset-10" ng-show="logs.length > 0">
-		<button id="btnSelec" class="btn btn-md" type="button" title="Select content for Copy & Paste"> Select </button>
+	    <div class="text-right" ng-show="logs.length > 0">
+		<button id="btnSelec" class="btn btn-sm btn-default" type="button" title="Select content for Copy & Paste"> Select </button>
 	    </div>
 	    <div ng-show="logs.length > 0" id="logcontent">
 		<div ng-repeat="v in logs"> {{ v }} </div>
 	    </div>
 
 	    <div ng-show="keys.length > 0">
-		<div ng-repeat="(k,v) in cntrs">
+		<div ng-repeat="(k,v) in cntrs" style="margin:16px 0px;">
 		    <span class="col-sm-3 text-right">{{langtxt(k)}}</span>: {{ v }}
 		</div>
 	    </div>
@@ -45,11 +45,16 @@
     $(function() {
         highlightMenuItem();
 
-	$('#logcontent').css({'height':'450px', 'overflow':'auto', 'margin-top':'16px', 'border':'1px solid black'});
+	$('#logcontent').css({'height':'450px', 'overflow':'auto', 'border':'1px solid black'});
+	$('#btnSelec').parent().css({'border':'1px solid black', 'border-bottom':'0', 'background-color':'#eee', 'padding':'1px'});
 
         $('#btnSelec').click(function(){
 //          console.log(this);
             selectText('logcontent');
+        });
+
+        $("#rstApp").click(function() {
+            $("#confirmModal").modal();
         });
 
     });

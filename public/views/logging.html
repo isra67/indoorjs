@@ -2,16 +2,20 @@
       <div class="row content">
         <h3>Logging</h3>
 
-	<div class="col-sm-8 col-sm-offset-2 text-left">
-	  <button id="btnStart" type="button" class="btn btn-md">Start</button>
-	  <button id="btnStopp" type="button" class="btn btn-md disabled">Stop</button>
-	  <button id="btnSelec" type="button" class="btn btn-md">Select</button>
-	  <button id="btnClear" type="button" class="btn btn-md">Clear</button>
-        </div>
       </div>
 
       <div class="row content">
-	<div id="content" class="col-sm-12 text-left">
+	<div class="text-right">
+	  <button id="btnStart" type="button" class="btn btn-sm" title="Start logging">
+	    Start</button>
+	  <button id="btnStopp" type="button" class="btn btn-sm disabled" title="Finish logging">
+	    Stop</button>
+	  <button id="btnSelec" type="button" class="btn btn-sm" title="Select content for Copy & Paste">
+	    Select</button>
+	  <button id="btnClear" type="button" class="btn btn-sm" title="Clear logging message window">
+	    Clear</button>
+        </div>
+	<div id="content" class="text-left">
 	    <div id="logcontent">Waiting...</div>
 	</div>
       </div>
@@ -44,7 +48,8 @@
 	    }
 	});
 
-	$('#logcontent').css({'height':'450px', 'overflow':'auto', 'margin-top':'16px', 'border':'1px solid black'});
+	$('#logcontent').css({'height':'450px', 'overflow':'auto', 'border':'1px solid black'});
+        $('#btnStopp').parent().css({'border':'1px solid black', 'border-bottom':'0', 'background-color':'#eee', 'padding':'1px'});
 
 	$('#btnStart').click(function(){
 	    logActive = 1;
