@@ -1,0 +1,54 @@
+    <div class="container-fluid">
+      <div class="row content">
+	<h3>Upload</h3>
+      </div>
+    </div>
+
+    <div class="row content">
+	<div class="col-sm-2 text-right">
+	</div>
+
+	<div class="col-sm-offset-2 text-left">
+	    <form name="myForm">
+	      <div class="form-group">
+		<label for="file">Choose file:</label>
+		<input type="file" class="form-control" ngf-select ng-model="picFile" name="file"
+		    ngf-max-size="1MB" required
+		    ngf-model-invalid="errorFile">
+		<i ng-show="myForm.file.$error.required">*required</i><br>
+		<i ng-show="myForm.file.$error.maxSize">File too large {{errorFile.size / 1000000|number:1}}MB: max 1M</i>
+	      </div>
+<!--
+accept="image/*" 
+		<img ng-show="myForm.file.$valid" ngf-thumbnail="picFile" class="thumb"> <button ng-click="picFile = null" ng-show="picFile">Remove</button>
+-->
+	      <div class="form-group">
+		<button class="btn btn-md btn-default" type="submit" title="Start file upload"
+		    ng-disabled="!myForm.$valid" ng-click="uploadPic(picFile)">Upload</button>
+	      </div>
+	      <div class="form-group">
+		<span class="progress" ng-show="picFile.progress >= 0">
+		    <div style="width:{{picFile.progress}}%" ng-bind="picFile.progress + '%'"></div>
+		</span>
+		<span ng-show="picFile.result">Upload successful</span>
+		<span class="err" ng-show="errorMsg">{{errorMsg}}</span>
+	      </div>
+	    </form>
+
+	</div>
+    </div>
+
+    <script>
+    $(function() {
+        highlightMenuItem();
+/*
+	$('#logcontent').css({'height':'450px', 'overflow':'auto', 'border':'1px solid black'});
+	$('#btnSelec').parent().css({'border':'1px solid black', 'border-bottom':'0', 'background-color':'#eee', 'padding':'1px'});
+
+        $('#btnSelec').click(function(){
+//          console.log(this);
+            selectText('logcontent');
+        });
+//*/
+    });
+    </script>

@@ -1,7 +1,7 @@
 
 var VERSION_STR = 'WebIndoor 1.0';
 
-var app = angular.module('myApp', ['ngRoute']);
+var app = angular.module('myApp', ['ngRoute', 'ngFileUpload']);
 
 
 //**  */
@@ -115,6 +115,62 @@ app.controller('configCtrl', function ($scope, services) {
 	$scope.keys = Object.keys(cfg);
     });
 });
+
+
+//**  */
+app.controller('uploadCtrl', ['$scope', 'Upload', '$timeout', 'services', 
+    function ($scope, Upload, $timeout, services) {
+
+    $scope.uploadPic = function(file) {
+	file.upload = Upload.upload({
+	    url: '/upload',
+	    method: 'POST',
+	    data: { file: file },
+	});
+
+	file.upload.then(function (response) {
+    	    $timeout(function () { file.result = response.data; });
+        }, function (response) {
+	    if (response.status > 0)
+    		$scope.errorMsg = response.status + ': ' + response.data;
+	}, function (evt) {
+    	    // Math.min is to fix IE which reports 200% sometimes
+    	    file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
+	});
+    };
+
+/*
+    $scope.submit = function() {
+      if ($scope.form.file.$valid && $scope.file) {
+        $scope.upload($scope.file);
+      }
+    };
+
+    // upload on file select or drop
+    $scope.upload = function (file) {
+        Upload.upload({
+            url: '/upload',
+            data: {file: file, 'username': $scope.username}
+        }).then(function (resp) {
+            console.log('Success ' + resp.config.data.file.name + 'uploaded. Response: ' + resp.data);
+        }, function (resp) {
+            console.log('Error status: ' + resp.status);
+        }, function (evt) {
+            var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+            console.log('progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
+        });
+    };
+    // for multiple files:
+/*    $scope.uploadFiles = function (files) {
+      if (files && files.length) {
+        for (var i = 0; i < files.length; i++) {
+          Upload.upload({..., data: {file: files[i]}, ...})...;
+        }
+        // or send them all together for HTML5 browsers:
+        Upload.upload({..., data: {file: files}, ...})...;
+      }
+    }//*/
+}]);
 
 
 //**  */
@@ -243,8 +299,6 @@ app.controller('basicCtrl', function ($scope, $location, $compile, services) {
 
 	// compile the element
 	$compile($(el))($scope);
-
-//	console.log('modalChange:', $scope.updateCfg, el, cb);
     };
 
     //**  */
@@ -287,6 +341,11 @@ app.config(function($routeProvider, $locationProvider, $httpProvider) {
         title: 'Services',
         templateUrl: 'views/services.html',
         controller: 'serviceCtrl'
+      })
+      .when('/upload', {
+        title: 'Upload',
+        templateUrl: 'views/upload.html',
+        controller: 'uploadCtrl'
       })
 /*      .when('/customers', {
         title: 'Customers',

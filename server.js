@@ -7,9 +7,11 @@ var express = require('express')
   , io = require('socket.io')(server)
   , net = require('net')
   , ps = require('ps-node')
+  , fileUpload = require('express-fileupload')
   , PORT = 80
   , SOCKET_PORT = 8123
   , INI_FILE = './../indoorpy/indoor.ini'
+  , MUSIC_DIR = './../indoorpy/sounds/ring_'
   , sockets = -1
   , appConnectionFlag = 0
   , webClients = [];
@@ -18,6 +20,7 @@ var express = require('express')
 app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(fileUpload({ limits: { fileSize: .5 * 1024 * 1024 }}));
 
 app.use(express.static(__dirname + '/node_modules'));
 
@@ -29,6 +32,23 @@ app.get('/', function(req, res) {
 });
 
 /** API */
+// upload file
+app.post('/upload', function(req, res) {
+  if (!req.files)
+    return res.json('ERROR: No files were uploaded');//res.status(400).send('No files were uploaded.');
+ 
+  // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
+  var sampleFile = req.files.file; //sampleFile
+
+  // Use the mv() method to place the file somewhere on your server 
+  sampleFile.mv(MUSIC_DIR + sampleFile.name, function(err) {
+    if (err)
+      return res.json('Server ERROR: ' + err);// res.status(500).send(err);
+ 
+    res.json('OK');// res.send('File uploaded!');
+  });
+});
+
 // get all
 app.get('/app/all', function(req, res) {
     var config = ini.parse(fs.readFileSync(INI_FILE, 'utf-8'));
@@ -95,7 +115,6 @@ app.get('/app/getfile/:dir/:name', function(req, res) {
 //    console.log('getfile', name, fcontent);
     res.json(eval("(" + fcontent + ")"));
 });
-
 
 app.get('*', function(req, res) {
   res.redirect('/index.html');

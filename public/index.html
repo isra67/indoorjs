@@ -38,6 +38,11 @@
       .sidenav { height: auto; padding: 15px; }
       .row.content { height:auto; }
     }
+
+    form .progress { line-height: 15px; }
+    .progress { display: inline-block; width: 300px;  border: 3px groove #CCC; }
+    .progress div { font-size: smaller; background: orange; width: 0; }
+
     </style>
 
     <script>
@@ -68,6 +73,7 @@
         <li><a href="config">Configuration</a></li>
         <li><a href="log">Logging</a></li>
         <li><a href="services">Services</a></li>
+        <li><a href="upload">Upload</a></li>
       </ul>
       <!--ul class="nav navbar-nav navbar-right">
         <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
@@ -124,6 +130,10 @@
 
   <script src="js/angular.min.js"></script>
   <script src="js/angular-route.min.js"></script>
+
+  <script src="js/ng-file-upload-shim.min.js"></script>
+  <script src="js/ng-file-upload.min.js"></script>
+
   <script src="app/app.js"></script>
 
   <script src="app/common.js"></script>
