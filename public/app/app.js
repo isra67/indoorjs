@@ -119,6 +119,21 @@ app.controller('configCtrl', function ($scope, services) {
         $scope.customers = sortcfg;
 	$scope.configbackup = JSON.parse(JSON.stringify(cfg));
 	$scope.keys = Object.keys(cfg);
+
+	var t = defcfg['ringtone']['options'];
+	if (t.split(',').length > 3) return;
+
+	// read customers' tones
+	services.getToneList().then(function(data){
+	    var a = data.data;
+	    for (var tone in a) {
+		if (a.hasOwnProperty(tone)) {
+//		    console.log('getToneList:',data.data);
+		    defcfg['ringtone']['options'] += ',' + a[tone].name;
+		}
+	    }
+//	    console.log('getIniItems:',data.data, defcfg['ringtone']['options']);
+	});
     });
 });
 
