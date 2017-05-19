@@ -11,7 +11,8 @@ var express = require('express')
   , PORT = 80
   , SOCKET_PORT = 8123
   , INI_FILE = './../indoorpy/indoor.ini'
-  , MUSIC_DIR = './../indoorpy/sounds/ring_'
+  , SOUNDS = './../indoorpy/sounds/'
+  , MUSIC_DIR = SOUNDS + 'ring_'
   , sockets = -1
   , appConnectionFlag = 0
   , webClients = [];
@@ -63,6 +64,53 @@ app.get('/app/status', function(req, res) {
     var s = "{'connection': appConnectionFlag}",
 	v = eval("(" + s + ")");
     res.json(v);
+});
+
+// get tone list
+app.get('/app/deltone/:name', function(req, res) {
+    var name = SOUNDS + req.params.name;
+    fs.unlinkSync(name);
+
+    res.json('OK');
+});
+
+// get tone list
+app.get('/app/gettones', function(req, res) {
+//    console.log('Status');
+//    var s = "[{'name': 'xName 1', 'size': 'xSize 1'},{'name': 'xName 2', 'size': 'xSize 2'}]",
+//	v = eval("(" + s + ")");
+
+    var path = SOUNDS, v = [];
+
+    fs.readdir(path, function(err, items) {
+	for (var i=0; i<items.length; i++) {
+	    if (items[i].indexOf('ring_') == 0) {
+		var r = {},
+		    file = path + '/' + items[i],
+		    stats = fs.statSync(file);
+
+		r.name = items[i];
+		r.size = stats["size"];
+		v.push(r);
+	    }
+
+//	    console.log("Start: " + file);
+/*	    fs.stat(file, function(f,n) {
+		return function(err, stats) {
+		    var r = {};
+//		    console.log(f);
+		    console.log(n, stats["size"]);
+		    r.name = n;
+		    r.size = stats["size"];
+		    v.push(r);
+		}
+	    }(file, items[i]));//*/
+	}
+
+	res.json(v);
+    });
+
+//    var files = fs.readdirSync(path);
 });
 
 // restart python app

@@ -1,6 +1,6 @@
     <div class="container-fluid">
       <div class="row content">
-	<h3>Upload</h3>
+	<h3>User ringing tones</h3>
       </div>
     </div>
 
@@ -9,14 +9,33 @@
 	</div>
 
 	<div class="col-sm-offset-2 text-left">
-	    <form name="myForm">
+
+	    <table class="table table-striped">
+		<thead>
+		    <th>Name</th><th>Size</th><th>Action</th>
+		</thead>
+		<tbody>
+		<tr ng-repeat="x in tones">
+		    <td>{{ x.name }}</td><td>{{ x.size }}</td>
+		    <td>
+			<button type="button" class="btn btn-default btn-sm"
+			    title="Remove file {{$index + 1}} from device"
+			    onclick='$("#confirmRemoveModal").modal()'
+			    ng-click="removeTone($index)">
+			    <span class="glyphicon glyphicon-trash"></span> Remove
+			</button>
+		    </td>
+		</tr>
+		</tbody>
+	    </table>
+
+	    <form name="myForm" ng-show="tones.length < 3">
 	      <div class="form-group">
-		<label for="file">Choose file:</label>
+		<label for="file">Choose the ringing tone file:</label>
 		<input type="file" class="form-control" ngf-select ng-model="picFile" name="file"
-		    ngf-max-size="1MB" required
-		    ngf-model-invalid="errorFile">
-		<i ng-show="myForm.file.$error.required">*required</i><br>
-		<i ng-show="myForm.file.$error.maxSize">File too large {{errorFile.size / 1000000|number:1}}MB: max 1M</i>
+		    ngf-max-size="2MB" required ngf-model-invalid="errorFile">
+		<i ng-show="myForm.file.$error.required">* required</i><br>
+		<i ng-show="myForm.file.$error.maxSize">File too large {{errorFile.size / 1000000|number:1}}MB: max 2MB</i>
 	      </div>
 <!--
 accept="image/*" 
@@ -26,21 +45,53 @@ accept="image/*"
 		<button class="btn btn-md btn-default" type="submit" title="Start file upload"
 		    ng-disabled="!myForm.$valid" ng-click="uploadPic(picFile)">Upload</button>
 	      </div>
-	      <div class="form-group">
-		<span class="progress" ng-show="picFile.progress >= 0">
+	      <div class="form-group" ng-show="picFile.progress >= 0">
+		<span class="progress">
 		    <div style="width:{{picFile.progress}}%" ng-bind="picFile.progress + '%'"></div>
 		</span>
+	      </div>
+	      <div class="form-group">
 		<span ng-show="picFile.result">Upload successful</span>
 		<span class="err" ng-show="errorMsg">{{errorMsg}}</span>
 	      </div>
 	    </form>
-
 	</div>
     </div>
+
+
+  <!-- Modal confirm -->
+  <div class="modal fade" id="confirmRemoveModal" role="dialog">
+    <div class="modal-dialog">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header" style="padding:16px 48px;">
+          <button type="button" class="close" style="margin-top:8px;"data-dismiss="modal">&times;</button>
+          <h4><span class="glyphicon glyphicon-ok"></span> Confirm </h4>
+        </div>
+        <div class="modal-body" style="padding:48px;">
+            <p><h3>
+            You are going to remove file from RPi board!<br/><br/>Are you sure?
+            </h3></p>
+        </div>
+        <div class="modal-footer">
+          <div class="text-right">
+            <button type="submit" class="btn btn-md btn-success"
+                ng-click="removeToneId()" data-dismiss="modal">
+                <span class="col-md-3"><span class="glyphicon glyphicon-ok-circle"></span> OK </span></button>
+            <button type="submit" class="btn btn-md btn-default" data-dismiss="modal">
+                <span class="col-md-2"><span class="glyphicon glyphicon-ban-circle"></span> Cancel </span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal confirm - end -->
+
 
     <script>
     $(function() {
         highlightMenuItem();
+
 /*
 	$('#logcontent').css({'height':'450px', 'overflow':'auto', 'border':'1px solid black'});
 	$('#btnSelec').parent().css({'border':'1px solid black', 'border-bottom':'0', 'background-color':'#eee', 'padding':'1px'});
