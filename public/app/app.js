@@ -248,6 +248,7 @@ app.controller('serviceCtrl', function ($scope, services) {
 	services.getFileContent('call-log.dat').then(function(data){
 //	    console.log('getCallLog:',data.data);
 	    $scope.logs = data.data;
+	    $scope.logs.push('');
 	});
     };
 
@@ -257,6 +258,7 @@ app.controller('serviceCtrl', function ($scope, services) {
 	services.getFileContent('app-log.dat').then(function(data){
 //	    console.log('getAppLog:',data.data);
 	    $scope.logs = data.data;
+	    $scope.logs.push('');
 	});
     };
 
@@ -266,6 +268,7 @@ app.controller('serviceCtrl', function ($scope, services) {
 	services.getFileContent('sip-log.dat').then(function(data){
 //	    console.log('getSipLog:',data.data);
 	    $scope.logs = data.data;
+	    $scope.logs.push('');
 	});
     };
 });

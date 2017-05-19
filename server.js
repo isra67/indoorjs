@@ -76,10 +76,6 @@ app.get('/app/deltone/:name', function(req, res) {
 
 // get tone list
 app.get('/app/gettones', function(req, res) {
-//    console.log('Status');
-//    var s = "[{'name': 'xName 1', 'size': 'xSize 1'},{'name': 'xName 2', 'size': 'xSize 2'}]",
-//	v = eval("(" + s + ")");
-
     var path = SOUNDS, v = [];
 
     fs.readdir(path, function(err, items) {
@@ -93,24 +89,10 @@ app.get('/app/gettones', function(req, res) {
 		r.size = stats["size"];
 		v.push(r);
 	    }
-
-//	    console.log("Start: " + file);
-/*	    fs.stat(file, function(f,n) {
-		return function(err, stats) {
-		    var r = {};
-//		    console.log(f);
-		    console.log(n, stats["size"]);
-		    r.name = n;
-		    r.size = stats["size"];
-		    v.push(r);
-		}
-	    }(file, items[i]));//*/
 	}
 
 	res.json(v);
     });
-
-//    var files = fs.readdirSync(path);
 });
 
 // restart python app
