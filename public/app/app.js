@@ -87,8 +87,11 @@ app.controller('configCtrl', function ($scope, services) {
 		    if ($scope.customers[sect].hasOwnProperty(item)) {
 			if ($scope.customers[sect][item] != $scope.configbackup[sect][item]) {
 			    // do stuff
-			    services.updateIniItem(sect,item,$scope.customers[sect][item]).then(function(data){
+			    services.updateIniItem(sect,item,$scope.customers[sect][item])
+			    .then(function(data) {
 //				console.log('changeItem:',data);
+			    }, function(err) {
+				console.log('changeItem:',err);
 			    });
 			}
 		    }
@@ -133,14 +136,16 @@ app.controller('configCtrl', function ($scope, services) {
 		}
 	    }
 //	    console.log('getIniItems:',data.data, defcfg['ringtone']['options']);
+	}, function(err) {
+	    console.log('getIniItems:',err);
 	});
     });
 });
 
 
 //** ******************************************************************************* */
-app.controller('uploadCtrl', ['$scope', 'Upload', '$timeout', 'services',
-    function ($scope, Upload, $timeout, services) {
+app.controller('uploadCtrl', ['$scope', 'Upload', '$timeout', '$location', 'services',
+    function ($scope, Upload, $timeout, $location, services) {
 
     $scope.tones = [];
     $scope.toRemove = -1;
@@ -152,6 +157,8 @@ app.controller('uploadCtrl', ['$scope', 'Upload', '$timeout', 'services',
 	services.getToneList().then(function(data){
 //	    console.log('getToneList:',data.data);
 	    $scope.tones = data.data;
+	}, function(err) {
+	    console.log('getToneList:',err);
 	});
     };
 
@@ -168,6 +175,9 @@ app.controller('uploadCtrl', ['$scope', 'Upload', '$timeout', 'services',
 //	    console.log('removeTone:',data.data);
 //	    $scope.tones.splice($scope.toRemove, 1);
 	    $scope.getToneList();
+	}, function(err) {
+	    console.log('removeToneId:',err);
+	    $location.path('/');
 	});
     };
 
@@ -205,7 +215,7 @@ app.controller('logCtrl', function ($scope, services) {
 
 
 //** ******************************************************************************* */
-app.controller('serviceCtrl', function ($scope, services) {
+app.controller('serviceCtrl', function ($scope, $location, services) {
     $scope.msg = '';
     $scope.logs = [];
     $scope.cntrs = {};
@@ -229,6 +239,9 @@ app.controller('serviceCtrl', function ($scope, services) {
 	$scope.reinitScopes();
 	services.applyCfgChanges().then(function(data){
 	    $scope.msg = data.data;
+	}, function(err) {
+	    console.log('restartApp:',err);
+	    $location.path('/');
 	});
     };
 
@@ -281,10 +294,12 @@ app.controller('mainCtrl', function ($scope, services) {
 
     //**  */
     $scope.getStatusApp = function() {
-	services.getAppStatus().then(function(data){
+	services.getAppStatus().then(function(data) {
 	    var d = data.data;
 //	    console.log('getAppStatus:',d);
 	    $scope.connection = d.connection;
+	}, function(err) {
+	    $scope.connection = '?';
 	});
     };
 
@@ -325,6 +340,9 @@ app.controller('basicCtrl', function ($scope, $location, $compile, services) {
 //	$scope.updateCfg = 0;
 	services.applyCfgChanges().then(function(data){
 //	    console.log('applyCfgChanges:',data);
+	    $location.path('/');
+	}, function(err) {
+	    console.log('applyCfgChanges:',err);
 	    $location.path('/');
 	});
     };
