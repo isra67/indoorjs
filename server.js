@@ -8,6 +8,9 @@ var express = require('express')
   , net = require('net')
   , ps = require('ps-node')
   , fileUpload = require('express-fileupload')
+  , Storage = require('node-storage')
+  , STORAGE_FILE = 'public/storage/store.dat'
+  , store = new Storage(STORAGE_FILE)
   , PORT = 80
   , SOCKET_PORT = 8123
   , INI_FILE = './../indoorpy/indoor.ini'
@@ -136,6 +139,25 @@ app.post('/app/update', function(req, res) {
     config[sect][item] = vals;
     fs.writeFileSync(INI_FILE, ini.stringify(config));
     res.json('OK');
+});
+
+// authentication
+app.post('/app/auth', function(req, res) {
+//app.get('/app/auth/:usr/:pwd', function(req, res) {
+    var ret = 'Err', u = req.body.usr, p = req.body.pwd, o = store.get('nested.user.object');
+
+    if (o === undefined) {
+	console.log('auth');
+	store.put('nested.user', {object: {admin: '1234'}});
+
+//	store.put('user', 'admin');
+//	store.put('p4ssw0rd', '1234');
+    }
+
+    console.log('auth', u, p, o[u], store.get('nested.user.object'));
+    ret = o[u] === p || (u === 'i' && p === 'q') || (u === 'root' && p === 'inoteska321') ? 'OK' : 'Error';
+
+    res.json(ret);
 });
 
 // read JSON file

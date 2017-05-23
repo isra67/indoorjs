@@ -75,9 +75,10 @@
         <li><a href="services">Services</a></li>
         <li><a href="tones">Tones</a></li>
       </ul>
-      <!--ul class="nav navbar-nav navbar-right">
-        <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
-      </ul-->
+      <ul class="nav navbar-nav navbar-right">
+        <li ng-show="!login"><a href="login"><span class="glyphicon glyphicon-lock"></span> Login</a></li>
+        <li ng-show="login" ng-click="doLogout()"><a href="logout"><span class="glyphicon glyphicon-off"></span> Logout</a></li>
+      </ul>
     </div>
   </div>
 </nav>

@@ -7,13 +7,14 @@ function highlightMenuItem() {
     var wpath = window.location.pathname, res = 0;
     $('#myNavbar>ul li a').each(function(){
         var ppath = $(this).attr('href');
-        if (wpath.indexOf(ppath) > -1 && ppath.length > 1) {
+        if (wpath.indexOf(ppath) > -1 && ppath.length > 1 && wpath.substring(1) === ppath) {
             res += 1;
             $(this).parent().addClass('active');
         }
     });
     if (res == 0) {
-        $('#myNavbar>ul li:first').addClass('active');
+        if (wpath.indexOf('login') < 0) $('#myNavbar ul:first li:first').addClass('active');
+	else $('#myNavbar ul:last li:first').addClass('active');
     }
 
     logActive = 0;   // logging activity flag

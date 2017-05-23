@@ -9,6 +9,7 @@
     "ini": "^1.3.4",
     "net": "^1.0.2",
     "ng-file-upload": "^12.2.13",
+    "node-storage": "0.0.7",
     "ps-node": "^0.1.6",
     "socket.io": "^1.6.0"
   },

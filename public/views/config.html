@@ -15,12 +15,10 @@
 	  <div id="content" class="col-sm-12 text-left" ng-show="keys.length > 0">
 	    <ul>
 	    <li ng-repeat="k in keys">
-		<h4><span class="label label-info">{{ k }}</span></h4>
+		<h4><span class="label label-info">{{langtxt(k)}}</span></h4>
 		<div ng-repeat="(ke,va) in customers[k]" class="row">
 		  <span ng-hide="(va.indexOf('button_') > -1) || (ke === 'uptime')">
-		    <span class="col-sm-4 text-right">
-			{{langtxt(ke)}}
-		    </span>
+		    <span class="col-sm-4 text-right"> {{langtxt(ke)}} </span>
 		    <input type="text" maxlength="128" class="col-sm-6"
 			ng-change="changeItem(k,ke,somename_$$k.id)"
 			ng-model-options="{ updateOn: 'blur' }"

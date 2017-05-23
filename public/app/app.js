@@ -11,6 +11,11 @@ app.factory("services", ['$http', function($http) {
       , headercfg = {}; //{ headers : { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;' }};
 
     //**  */
+    obj.checkLogin = function(u,p) {
+        return $http.post(serviceBase + 'auth', {usr: u, pwd:p}, headercfg);
+    }
+
+    //**  */
     obj.getAppStatus = function() {
         return $http.get(serviceBase + 'status');
     }
@@ -53,7 +58,7 @@ app.factory("services", ['$http', function($http) {
 
 
 //** ******************************************************************************* */
-app.controller('configCtrl', function ($scope, services) {
+app.controller('configCtrl', function ($scope, $rootScope, $location, services) {
     $scope.customers = {};
     $scope.configbackup = {};
     $scope.keys = [];
@@ -104,12 +109,18 @@ app.controller('configCtrl', function ($scope, services) {
     services.getIniItems().then(function(data) {
 	var cfg = data.data, sortcfg = {};
 
+
 	// sorting keys in INI:
 	for (var sect in cfg) {
 	    if (cfg.hasOwnProperty(sect)) {
 		sortcfg[sect] = {};
 		var items = Object.keys(cfg[sect]);
-		if (sect === 'common') items = items.sort();
+		items.sort(function(a,b) {
+			var p1, p2;
+			try { p1 = defcfg[a].position; } catch (e) { return 100; }
+			try { p2 = defcfg[b].position; } catch (e) { return 100; }
+			return p1 - p2;
+		    });
 		for (var item in items) {
 		    if (cfg[sect].hasOwnProperty(items[item])) {
 			sortcfg[sect][items[item]] = cfg[sect][items[item]];
@@ -140,12 +151,16 @@ app.controller('configCtrl', function ($scope, services) {
 	    console.log('getIniItems:',err);
 	});
     });
+
+    if ($rootScope.login == 0) {
+	$location.path('/login');
+    }
 });
 
 
 //** ******************************************************************************* */
-app.controller('uploadCtrl', ['$scope', 'Upload', '$timeout', '$location', 'services',
-    function ($scope, Upload, $timeout, $location, services) {
+app.controller('uploadCtrl', ['$scope', '$rootScope', 'Upload', '$timeout', '$location', 'services',
+    function ($scope, $rootScope, Upload, $timeout, $location, services) {
 
     $scope.tones = [];
     $scope.toRemove = -1;
@@ -204,18 +219,51 @@ app.controller('uploadCtrl', ['$scope', 'Upload', '$timeout', '$location', 'serv
 	});
     };
 
+    if ($rootScope.login == 0) {
+	$location.path('/login');
+    }
+
     $scope.getToneList();
 }]);
 
 
 //** ******************************************************************************* */
-app.controller('logCtrl', function ($scope, services) {
+app.controller('logCtrl', function ($scope, $rootScope, $location, services) {
     $scope.logs = [];
+
+    if ($rootScope.login == 0) {
+	$location.path('/login');
+    }
 });
 
 
 //** ******************************************************************************* */
-app.controller('serviceCtrl', function ($scope, $location, services) {
+app.controller('loginCtrl', function ($scope, $rootScope, $location, services) {
+    $scope.msg = '';
+
+    //**  */
+    $scope.checkLogin = function() {
+	//console.log('checkLogin:',$scope.usr, $scope.pwd);
+	$rootScope.login = 0;
+	$scope.msg = '';
+	services.checkLogin($scope.usr, $scope.pwd).then(
+	    function(data) {
+		$rootScope.login = data.data === 'OK' ? 1 : 0;
+//		console.log('checkLogin:', data.data, $rootScope.login);
+		if ($rootScope.login > 0) {
+		    $location.path('/');
+		} else {
+		    $scope.msg = 'Bad Username or Password';
+		}
+	    }, function(err) {
+		$scope.msg = 'Bad Username or Password';
+	    });
+    };
+});
+
+
+//** ******************************************************************************* */
+app.controller('serviceCtrl', function ($scope, $rootScope, $location, services) {
     $scope.msg = '';
     $scope.logs = [];
     $scope.cntrs = {};
@@ -284,12 +332,17 @@ app.controller('serviceCtrl', function ($scope, $location, services) {
 	    $scope.logs.push('');
 	});
     };
+
+    if ($rootScope.login == 0) {
+	$location.path('/login');
+    }
 });
 
 
 //** ******************************************************************************* */
-app.controller('mainCtrl', function ($scope, services) {
+app.controller('mainCtrl', function ($scope, $rootScope, $location, services) {
     $scope.connection = '?';
+
     var timerFlag = 0;
 
     //**  */
@@ -303,6 +356,10 @@ app.controller('mainCtrl', function ($scope, services) {
 	});
     };
 
+    if ($rootScope.login == 0) {
+	$location.path('/login');
+    }
+
     //**  */
     if (timerFlag == 0) {
 	$scope.getStatusApp();
@@ -312,12 +369,24 @@ app.controller('mainCtrl', function ($scope, services) {
 
 
 //** ******************************************************************************* */
-app.controller('basicCtrl', function ($scope, $location, $compile, services) {
-    $scope.msgs = VERSION_STR;
+app.controller('basicCtrl', function ($scope, $rootScope, $location, $compile, services) {
+    $scope.msgs = $rootScope.msgs;
+    $scope.logged = $rootScope.login;
 
     //**  */
     $scope.langtxt = function(key) {
 	return langstr[key] || key;
+    };
+
+    if ($rootScope.login == 0) {
+	$location.path('/login');
+    }
+
+    //**  */
+    $scope.doLogout = function() {
+	$rootScope.login = 0;
+	$scope.logged = $rootScope.login;
+	$location.path('/login');
     };
 
     //**  */
@@ -357,6 +426,16 @@ app.config(function($routeProvider, $locationProvider, $httpProvider) {
         templateUrl: 'views/about.html',
         controller: 'mainCtrl'
       })
+      .when('/login', {
+        title: 'LogIn',
+        templateUrl: 'views/login.html',
+        controller: 'loginCtrl'
+      })
+      .when('/logout', {
+        title: 'LogOut',
+        templateUrl: 'views/login.html',
+        controller: 'loginCtrl'
+      })
       .when('/config', {
         title: 'Config',
         templateUrl: 'views/config.html',
@@ -378,7 +457,7 @@ app.config(function($routeProvider, $locationProvider, $httpProvider) {
         controller: 'uploadCtrl'
       })
       .otherwise({
-        redirectTo: '/'
+        redirectTo: '/login'
       });
 
     $locationProvider.html5Mode(true);
@@ -387,6 +466,9 @@ app.config(function($routeProvider, $locationProvider, $httpProvider) {
 
 //** ******************************************************************************* */
 app.run(['$location', '$rootScope', function($location, $rootScope) {
+    $rootScope.login = 0;
+    $rootScope.msgs = VERSION_STR;
+
     $rootScope.$on('$routeChangeSuccess', function (event, current, previous) {
         $rootScope.title = current.$$route.title;
     });
