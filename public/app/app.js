@@ -16,6 +16,11 @@ app.factory("services", ['$http', function($http) {
     }
 
     //**  */
+    obj.applyPwdChange = function(u,oldPwd,newPwd) {
+        return $http.post(serviceBase + 'pwdx', {usr: u, opwd: oldPwd, npwd: newPwd}, headercfg);
+    }
+
+    //**  */
     obj.getAppStatus = function() {
         return $http.get(serviceBase + 'status');
     }
@@ -251,6 +256,7 @@ app.controller('loginCtrl', function ($scope, $rootScope, $location, services) {
 		$rootScope.login = data.data === 'OK' ? 1 : 0;
 //		console.log('checkLogin:', data.data, $rootScope.login);
 		if ($rootScope.login > 0) {
+		    $rootScope.username = $scope.usr;
 		    $location.path('/');
 		} else {
 		    $scope.msg = 'Bad Username or Password';
@@ -372,6 +378,7 @@ app.controller('mainCtrl', function ($scope, $rootScope, $location, services) {
 app.controller('basicCtrl', function ($scope, $rootScope, $location, $compile, services) {
     $scope.msgs = $rootScope.msgs;
     $scope.logged = $rootScope.login;
+    $scope.errmsg = '';
 
     //**  */
     $scope.langtxt = function(key) {
@@ -385,8 +392,37 @@ app.controller('basicCtrl', function ($scope, $rootScope, $location, $compile, s
     //**  */
     $scope.doLogout = function() {
 	$rootScope.login = 0;
+	$rootScope.username = '';
+	$scope.errmsg = '';
 	$scope.logged = $rootScope.login;
 	$location.path('/login');
+    };
+
+    //**  */
+    $scope.applyPwdChange = function() {
+	console.log('applyPwdChange:', $rootScope.username, $scope.oldPwd, $scope.newPwd1, $scope.newPwd2);
+	$scope.errmsg = '';
+	if ($rootScope.username.toLowerCase() !== 'admin') {
+	    $scope.errmsg = 'You have not privilege to change password for "'+$rootScope.username+'"!';
+	    $scope.oldPwd = $scope.newPwd1 = $scope.newPwd2 = '';
+	    return;
+	}
+	if ($scope.newPwd1.length > 1 && $scope.newPwd1 === $scope.newPwd2) {
+	  services.applyPwdChange($rootScope.username, $scope.oldPwd, $scope.newPwd1)
+	    .then(function(data){
+		if (data.data !== 'OK') { $scope.errmsg = data.data; }
+		else {
+		    $rootScope.login = 0;
+		    $location.path('/logout');
+		}
+	    }, function(err) {
+	      console.log('applyPwdChange:',err);
+	      $scope.errmsg = err;
+	    });
+	} else {
+	    $scope.errmsg = 'New passwords are not equal!';
+	}
+	$scope.oldPwd = $scope.newPwd1 = $scope.newPwd2 = '';
     };
 
     //**  */
@@ -406,13 +442,15 @@ app.controller('basicCtrl', function ($scope, $rootScope, $location, $compile, s
 
     //**  */
     $scope.applyCfgChanges = function() {
+	$scope.errmsg = '';
 //	$scope.updateCfg = 0;
 	services.applyCfgChanges().then(function(data){
 //	    console.log('applyCfgChanges:',data);
 	    $location.path('/');
 	}, function(err) {
 	    console.log('applyCfgChanges:',err);
-	    $location.path('/');
+	    $scope.errmsg = err;
+//	    $location.path('/');
 	});
     };
 });
@@ -467,6 +505,7 @@ app.config(function($routeProvider, $locationProvider, $httpProvider) {
 //** ******************************************************************************* */
 app.run(['$location', '$rootScope', function($location, $rootScope) {
     $rootScope.login = 0;
+    $rootScope.username = '';
     $rootScope.msgs = VERSION_STR;
 
     $rootScope.$on('$routeChangeSuccess', function (event, current, previous) {

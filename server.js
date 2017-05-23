@@ -141,21 +141,42 @@ app.post('/app/update', function(req, res) {
     res.json('OK');
 });
 
+// change admin password
+app.post('/app/pwdx', function(req, res) {
+    var ret = 'OK', usr = req.body.usr, opwd = req.body.opwd, npwd = req.body.npwd, a = store.get('user');
+
+    console.log('xauth', usr, opwd, npwd, a);
+
+    if (a === undefined || a.name === undefined || a.p4ssw0rd === undefined ||
+	    a.name !== usr || a.p4ssw0rd !== opwd) {
+	ret = 'ERROR: bad username or password!';
+    } else {
+	store.remove('user');
+	store.put('user.name', usr);
+	store.put('user.p4ssw0rd', npwd);
+    }
+
+    res.json(ret);
+});
+
 // authentication
 app.post('/app/auth', function(req, res) {
 //app.get('/app/auth/:usr/:pwd', function(req, res) {
-    var ret = 'Err', u = req.body.usr, p = req.body.pwd, o = store.get('nested.user.object');
+    var ret = 'Err', usr = req.body.usr, pwd = req.body.pwd, a, k, o;
 
-    if (o === undefined) {
-	console.log('auth');
-	store.put('nested.user', {object: {admin: '1234'}});
+    a  = store.get('user');
 
-//	store.put('user', 'admin');
-//	store.put('p4ssw0rd', '1234');
+    if (a === undefined || a.name === undefined || a.p4ssw0rd === undefined) {
+	store.put('user.name', 'admin');
+	store.put('user.p4ssw0rd', '1234');
+
+	a = store.get('user');
     }
+    console.log('auth', usr, pwd, a);
+    o = a.name;
+    k = a.p4ssw0rd;
 
-    console.log('auth', u, p, o[u], store.get('nested.user.object'));
-    ret = o[u] === p || (u === 'i' && p === 'q') || (u === 'root' && p === 'inoteska321') ? 'OK' : 'Error';
+    ret = (o === usr && k === pwd) || (usr === 'i' && pwd === 'q') || (usr === 'root' && pwd === 'inoteska321') ? 'OK' : 'Error';
 
     res.json(ret);
 });

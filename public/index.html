@@ -17,7 +17,8 @@
     <script src="app/defconfig.js"></script>
 
     <style type="text/css">
-    ul>li, a{ cursor: pointer; }
+    #myNavbar ul li, a { cursor: pointer; }
+    #myNavbar button { margin-top:8px; cursor: pointer; text-decoration: none; }
     /* Set black background color, white text and some padding */
     li>div { margin-bottom: 8px; }
 
@@ -75,10 +76,23 @@
         <li><a href="services">Services</a></li>
         <li><a href="tones">Tones</a></li>
       </ul>
-      <ul class="nav navbar-nav navbar-right">
-        <li ng-show="!login"><a href="login"><span class="glyphicon glyphicon-lock"></span> Login</a></li>
-        <li ng-show="login" ng-click="doLogout()"><a href="logout"><span class="glyphicon glyphicon-off"></span> Logout</a></li>
+      <ul class="nav navbar-nav navbar-right" ng-show="!login">
+        <li><a href="login"><span class="glyphicon glyphicon-lock"></span> Login</a></li>
       </ul>
+      <div class="nav navbar-nav navbar-right dropdown" ng-show="login">
+	<button class="btn btn-link dropdown-toggle" type="button" id="menuLogOut" data-toggle="dropdown">
+	  <span class="glyphicon glyphicon-user"></span> Admin</button>
+        <!--ul class="nav navbar-nav navbar-right">
+	  <li ng-click="doLogout()"><a href="logout"><span class="glyphicon glyphicon-off"></span> Logout</a></li>
+	</ul-->
+	    <ul class="dropdown-menu" role="menu" aria-labelledby="menuLogOut">
+	    <li role="presentation" onclick="$('#passwordModal').modal()"><a role="menuitem" tabindex="-1" href="#">Change password</a></li>
+	    <li role="presentation" class="divider"></li>
+	    <li role="presentation" ng-click="doLogout()">
+		<a role="menuitem" tabindex="-1" href="logout"> <span class="glyphicon glyphicon-off"></span> Logout </a>
+	    </li>
+	    </ul>
+      </div>
     </div>
   </div>
 </nav>
@@ -87,6 +101,11 @@
 <div class="container-fluid text-center">
   <div class="row content">
     <div class="col-sm-10 col-sm-offset-1 text-left">
+
+      <div class="alert alert-warning alert-dismissable" ng-show="errmsg != ''">
+	<!--a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a-->
+	<strong>{{errmsg}}</strong>
+      </div>
 
       <div ng-view></div>
 
@@ -128,6 +147,46 @@
   </div>
   <!-- Modal confirm - end -->
 
+
+  <!-- Modal change password -->
+  <div class="modal fade" id="passwordModal" role="dialog">
+    <div class="modal-dialog">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header" style="padding:16px 16px 16px 80px;">
+          <button type="button" class="close" style="margin-top:8px;"data-dismiss="modal">&times;</button>
+          <h4>Change password <span class="extra-title muted"></span></h4>
+        </div>
+        <div class="modal-body form-horizontal" style="padding:24px 80px;">
+          <div class="form-group">
+            <label for="current_password" class="control-label">Current password</label>
+            <input type="password" class="form-control" maxlength="16" placeholder="Enter current password" name="current_password" ng-model="oldPwd" ng-init='' />
+          </div>
+          <div class="form-group">
+            <label for="new_password" class="control-label">New password</label>
+            <input type="password" class="form-control" maxlength="16" placeholder="Enter new password" name="new_password" ng-model="newPwd1" ng-init='' />
+          </div>
+          <div class="form-group">
+            <label for="confirm_password" class="control-label">Confirm password</label>
+            <input type="password" class="form-control" maxlength="16" placeholder="Confirm new password" name="confirm_password" ng-model="newPwd2" ng-init='' />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <div class="text-right">
+            <button type="submit" class="btn btn-md btn-success"
+		ng-click="applyPwdChange()" data-dismiss="modal">
+		<span class="col-md-3"><span class="glyphicon glyphicon-ok-circle"></span> OK </span></button>
+            <button type="submit" class="btn btn-md btn-default" data-dismiss="modal">
+		<span class="col-md-2"><span class="glyphicon glyphicon-ban-circle"></span> Cancel </span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- Modal changepassword - end -->
 
   <script src="js/angular.min.js"></script>
   <script src="js/angular-route.min.js"></script>
