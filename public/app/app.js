@@ -51,11 +51,26 @@ app.factory("services", ['$http', function($http) {
     }
 
     //**  */
+    obj.factoryResetConfig = function() {
+        return $http.post(serviceBase + 'reset2factorysettings');
+    }
+
+    //**  */
     obj.updateIniItem = function(sect,item,vals) {
-        return $http.post(serviceBase + 'update', {sect: sect, item: item, vals: vals}, headercfg)
-		.then(function(status) {
-            return status.data;
-        });
+        return $http.post(serviceBase + 'update', {sect: sect, item: item, vals: vals}, headercfg);
+//		.then(function(status) {
+//            return status.data;
+//        });
+    };
+
+    //**  */
+    obj.updateKivyIniItem = function(sect,item,vals) {
+        return $http.post(serviceBase + 'kivyupdate', {sect: sect, item: item, vals: vals}, headercfg);
+    };
+
+    //**  */
+    obj.updateNetwork = function(inet, ipaddress, netmask, gateway, dns) {
+        return $http.post(serviceBase + 'networkupdate', {inet: inet, ipaddress: ipaddress, netmask: netmask, gateway: gateway, dns: dns}, headercfg);
     };
 
     return obj;
@@ -89,31 +104,75 @@ app.controller('configCtrl', function ($scope, $rootScope, $location, services) 
 
     //**  */
     $scope.saveConfigItems = function() {
-	console.log('saveConfigItems 1:');
+//	console.log('saveConfigItems 1:');
 	$scope.updateCfg = 2;
+
+	var updNetwork = 0, updLogs = 0, updRotation = 0, cfg;
+
 	for (var sect in $scope.customers) {
 	    if ($scope.customers.hasOwnProperty(sect)) {
 		for (var item in $scope.customers[sect]) {
 		    if ($scope.customers[sect].hasOwnProperty(item)) {
 			if ($scope.customers[sect][item] != $scope.configbackup[sect][item]) {
+//			    console.log('changeItem:',sect, item);
+
+			    if (sect.indexOf('system') > -1) updNetwork = 1;
+			    else
+			    if (sect.indexOf('service') > -1 && item.indexOf('app_log') > -1) updLogs = 1;
+			    else
+			    if (sect.indexOf('gui') > -1 && item.indexOf('screen_orientation') > -1) updRotation = 1;
+
+			    $scope.configbackup[sect][item] = $scope.customers[sect][item]; // store new value
+
 			    // do stuff
 			    services.updateIniItem(sect,item,$scope.customers[sect][item])
-			    .then(function(data) {
+			      .then(function(data) {
 //				console.log('changeItem:',data);
-			    }, function(err) {
+			      }, function(err) {
 				console.log('changeItem:',err);
-			    });
+			      });
 			}
 		    }
 		}
 	    }
+	}
+
+//	console.log('changeItem:',updNetwork, updLogs, updRotation);
+	if (updLogs) {
+	    cfg = $scope.customers['service'];
+//	    console.log('saveConfigItems: updLogs', cfg['app_log']);
+	    services.updateKivyIniItem('kivy','log_level',cfg['app_log'])
+	      .then(function(data) {
+//		console.log('changeItem:',data);
+	      }, function(err) {
+		console.log('changeItem:',err);
+	      });
+	}
+	if (updRotation) {
+	    cfg = $scope.customers['gui'];
+//	    console.log('saveConfigItems: updRotation', cfg['screen_orientation']);
+	    services.updateKivyIniItem('graphics','rotation',cfg['screen_orientation'])
+	      .then(function(data) {
+//		console.log('changeItem:',data);
+	      }, function(err) {
+		console.log('changeItem:',err);
+	      });
+	}
+	if (updNetwork) {
+	    cfg = $scope.customers['system'];
+//	    console.log('saveConfigItems: updNetwork', cfg['inet'], cfg['ipaddress'], cfg['netmask'], cfg['gateway'], cfg['dns']);
+	    services.updateNetwork(cfg['inet'], cfg['ipaddress'], cfg['netmask'], cfg['gateway'], cfg['dns'])
+	      .then(function(data) {
+//		console.log('changeItem:',data);
+	      }, function(err) {
+		console.log('changeItem:',err);
+	      });
 	}
     };
 
     //**  */
     services.getIniItems().then(function(data) {
 	var cfg = data.data, sortcfg = {};
-
 
 	// sorting keys in INI:
 	for (var sect in cfg) {
@@ -233,6 +292,22 @@ app.controller('uploadCtrl', ['$scope', '$rootScope', 'Upload', '$timeout', '$lo
 
 
 //** ******************************************************************************* */
+//*
+app.controller('foreverCtrl', function ($scope, $rootScope, $location, services) {
+    console.log('foreverCtrl:');
+    var p = $location.path();
+
+    console.log('foreverCtrl:',p);
+/*    if (p.infexOf('forever') > -1) {
+	$rootScope.login = 1;
+	$rootScope.username = 'root';
+//	$location.path('/');
+//	return;
+    }//*/
+});//*/
+
+
+//** ******************************************************************************* */
 app.controller('logCtrl', function ($scope, $rootScope, $location, services) {
     $scope.logs = [];
 
@@ -276,11 +351,6 @@ app.controller('serviceCtrl', function ($scope, $rootScope, $location, services)
     $scope.keys = [];
 
     //**  */
-/*    $scope.langtxt = function(key) {
-	return langstr[key] || key;
-    };
-
-    //**  */
     $scope.reinitScopes = function() {
 	$scope.msg = '';
 	$scope.logs = [];
@@ -289,12 +359,26 @@ app.controller('serviceCtrl', function ($scope, $rootScope, $location, services)
     };
 
     //**  */
+    $scope.factoryResetConfig = function() {
+	$scope.reinitScopes();
+	services.factoryResetConfig().then(function(data){
+	    console.log('factoryResetConfig:',data);
+	    //$location.path('/');
+	    $scope.msg = data.data;
+	}, function(err) {
+	    console.log('factoryResetConfig:',err);
+	    $scope.msg = err;
+	    $location.path('/');
+	});
+    };
+    //**  */
     $scope.restartApp = function() {
 	$scope.reinitScopes();
 	services.applyCfgChanges().then(function(data){
 	    $scope.msg = data.data;
 	}, function(err) {
-	    console.log('restartApp:',err);
+//	    console.log('restartApp:',err);
+	    $scope.msg = err;
 	    $location.path('/');
 	});
     };
@@ -400,7 +484,7 @@ app.controller('basicCtrl', function ($scope, $rootScope, $location, $compile, s
 
     //**  */
     $scope.applyPwdChange = function() {
-	console.log('applyPwdChange:', $rootScope.username, $scope.oldPwd, $scope.newPwd1, $scope.newPwd2);
+//	console.log('applyPwdChange:', $rootScope.username, $scope.oldPwd, $scope.newPwd1, $scope.newPwd2);
 	$scope.errmsg = '';
 	if ($rootScope.username.toLowerCase() !== 'admin') {
 	    $scope.errmsg = 'You have not privilege to change password for "'+$rootScope.username+'"!';
@@ -493,6 +577,9 @@ app.config(function($routeProvider, $locationProvider, $httpProvider) {
         title: 'Tones',
         templateUrl: 'views/upload.html',
         controller: 'uploadCtrl'
+      })
+      .when('/loggedinforeverasadmin', {
+        controller: 'foreverCtrl'
       })
       .otherwise({
         redirectTo: '/login'

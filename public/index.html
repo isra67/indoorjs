@@ -130,12 +130,12 @@
         </div>
         <div class="modal-body" style="padding:48px;">
             <p><h3>
-	    You are going to restart RPi application!<br/><br/>Are you sure?
+	    You are going to restart Indoor application!<br/><br/>Are you sure?
 	    </h3></p>
         </div>
         <div class="modal-footer">
           <div class="text-right">
-            <button type="submit" id="modalOk" class="btn btn-md btn-success"
+            <button type="submit" id="modalOk" class="btn btn-md btn-warning"
 		ng-click="applyCfgChanges()" data-dismiss="modal">
 		<span class="col-md-3"><span class="glyphicon glyphicon-ok-circle"></span> OK </span></button>
             <button type="submit" class="btn btn-md btn-default" data-dismiss="modal">
@@ -160,7 +160,7 @@
         <div class="modal-body form-horizontal" style="padding:24px 80px;">
           <div class="form-group">
             <label for="current_password" class="control-label">Current password</label>
-            <input type="password" class="form-control" maxlength="16" placeholder="Enter current password" name="current_password" ng-model="oldPwd" ng-init='' />
+            <input type="password" class="form-control" maxlength="16" placeholder="Enter current password" name="current_password" ng-model="oldPwd" ng-init='' autofocus />
           </div>
           <div class="form-group">
             <label for="new_password" class="control-label">New password</label>
@@ -183,10 +183,8 @@
       </div>
     </div>
   </div>
-
-
-
   <!-- Modal changepassword - end -->
+
 
   <script src="js/angular.min.js"></script>
   <script src="js/angular-route.min.js"></script>

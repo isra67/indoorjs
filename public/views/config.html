@@ -21,17 +21,16 @@
 		    <span class="col-sm-4 text-right"> {{langtxt(ke)}} </span>
 		    <input type="text" maxlength="128" class="col-sm-6"
 			ng-change="changeItem(k,ke,somename_$$k.id)"
-			ng-model-options="{ updateOn: 'blur' }"
+			ng-model-options="{ updateOn: 'keyup' }"
 			ng-show="cfgItemType(ke).length == 0"
 			ng-model="somename_$$k.id" ng-init="somename_$$k.id=va"
 			ng-disabled="(ke.indexOf('app_') > -1) || (ke === 'serial')" />
 		    <select class="col-sm-6"
 			ng-change="changeItem(k,ke,somename_$$k.id)"
-			ng-model-options="{ updateOn: 'blur' }"
+			ng-model-options="{ updateOn: 'change' }"
 			ng-show="cfgItemType(ke).length > 0"
 			ng-options="item for item in cfgItemType(ke)"
-			ng-model="somename_$$k.id" ng-init="somename_$$k.id=va"
-			ng-disabled="(ke.indexOf('_log') > 0) || (ke === 'screen_orientation')">
+			ng-model="somename_$$k.id" ng-init="somename_$$k.id=va">
 		    </select>
 		  </span>
 		</div>
@@ -56,12 +55,12 @@
         </div>
         <div class="modal-body" style="padding:48px;">
             <p><h3>
-	    You are going to rewrite INI file for RPi application<br/><br/>Are you sure?
+	    You are going to rewrite INI file for Indoor application<br/><br/>Are you sure?
 	    </h3></p>
         </div>
         <div class="modal-footer">
           <div class="text-right">
-            <button type="submit" class="btn btn-md btn-success"
+            <button type="submit" class="btn btn-md btn-warning"
 		ng-click="saveConfigItems()" data-dismiss="modal"><span class="col-md-3">
 		<span class="glyphicon glyphicon-ok-circle"></span> OK </span></button>
             <button type="submit" class="btn btn-md btn-default" data-dismiss="modal"><span class="col-md-2">

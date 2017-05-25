@@ -21,6 +21,9 @@
             <p><button id="rstApp" class="btn btn-md" type="button" title="Restart RPi GUI application">
 		Restart app
 	    </button></p>
+            <p><button id="rstCfg" class="btn btn-md" type="button" title="Restore factory settings">
+		Factory reset
+	    </button></p>
 	</div>
 
 	<div class="col-sm-offset-2 text-left">
@@ -41,6 +44,37 @@
 	</div>
     </div>
 
+
+  <!-- Modal confirm -->
+  <div class="modal fade" id="confirmFactoryModal" role="dialog">
+    <div class="modal-dialog">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header" style="padding:16px 48px;">
+          <button type="button" class="close" style="margin-top:8px;"data-dismiss="modal">&times;</button>
+          <h4><span class="glyphicon glyphicon-ok"></span> Confirm </h4>
+        </div>
+        <div class="modal-body" style="padding:48px;">
+            <p><h3>
+            You are going to rewrite all config files.<br/>
+	    This step cannot be undone.<br/><br/>Are you sure?
+            </h3></p>
+        </div>
+        <div class="modal-footer">
+          <div class="text-right">
+            <button type="submit" class="btn btn-md btn-danger"
+                ng-click="factoryResetConfig()" data-dismiss="modal"><span class="col-md-3">
+                <span class="glyphicon glyphicon-ok-circle"></span> OK </span></button>
+            <button type="submit" class="btn btn-md btn-default" data-dismiss="modal"><span class="col-md-2">
+                <span class="glyphicon glyphicon-ban-circle"></span> Cancel </span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal confirm - end -->
+
+
     <script>
     $(function() {
         highlightMenuItem();
@@ -55,6 +89,10 @@
 
         $("#rstApp").click(function() {
             $("#confirmModal").modal();
+        });
+
+        $("#rstCfg").click(function() {
+            $("#confirmFactoryModal").modal();
         });
 
     });

@@ -1,19 +1,25 @@
 var express = require('express')
   , bodyParser = require('body-parser')
   , fs = require('fs')
-  , ini = require('ini')
+//  , ini = require('ini')
+  , iniReader = require('inireader')
   , app = express()
   , server = require('http').createServer(app)
   , io = require('socket.io')(server)
   , net = require('net')
-  , ps = require('ps-node')
+//  , ps = require('ps-node')
   , fileUpload = require('express-fileupload')
   , Storage = require('node-storage')
+  , path = require("path")
+
+  , exec_process = require('./lib/exec_process')
+
   , STORAGE_FILE = 'public/storage/store.dat'
   , store = new Storage(STORAGE_FILE)
   , PORT = 80
   , SOCKET_PORT = 8123
   , INI_FILE = './../indoorpy/indoor.ini'
+  , KIVY_INI_FILE = './../.kivy/config.ini'
   , SOUNDS = './../indoorpy/sounds/'
   , MUSIC_DIR = SOUNDS + 'ring_'
   , sockets = -1
@@ -21,21 +27,15 @@ var express = require('express')
   , webClients = [];
 
 
-app.use(express.static(__dirname + '/public'));
+app.use(express.static(path.join(__dirname + '/public')));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(fileUpload({ limits: { fileSize: .5 * 1024 * 1024 }}));
 
-app.use(express.static(__dirname + '/node_modules'));
+app.use(express.static(path.join(__dirname + '/node_modules')));
 
 
-/** express routes */
-app.get('/', function(req, res) {
-  res.sendFile('/index.html');
-//  res.redirect('/index.html');
-});
-
-/** API */
+/** API routes */
 // upload file
 app.post('/upload', function(req, res) {
   if (!req.files)
@@ -55,7 +55,11 @@ app.post('/upload', function(req, res) {
 
 // get all
 app.get('/app/all', function(req, res) {
-    var config = ini.parse(fs.readFileSync(INI_FILE, 'utf-8'));
+//    var config = ini.parse(fs.readFileSync(INI_FILE, 'utf-8'));
+    var parser = new iniReader.IniReader(), config;
+
+    parser.load(INI_FILE);
+    config = parser.getBlock()
 
 //    console.log('All');//, config);
     res.json(config);
@@ -79,13 +83,13 @@ app.get('/app/deltone/:name', function(req, res) {
 
 // get tone list
 app.get('/app/gettones', function(req, res) {
-    var path = SOUNDS, v = [];
+    var spath = SOUNDS, v = [];
 
-    fs.readdir(path, function(err, items) {
+    fs.readdir(spath, function(err, items) {
 	for (var i=0; i<items.length; i++) {
 	    if (items[i].indexOf('ring_') == 0) {
 		var r = {},
-		    file = path + '/' + items[i],
+		    file = path.join(spath + '/' + items[i]),
 		    stats = fs.statSync(file);
 
 		r.name = items[i];
@@ -100,53 +104,56 @@ app.get('/app/gettones', function(req, res) {
 
 // restart python app
 app.post('/app/apply', function(req, res) {
-//    console.log('Apply');
-    ps.lookup({
-      command: 'python'
-      }, function(err, resultList) {
-        if (err) {
-	  var e = new Error(err)
-          res.json(err);
-          throw e;
-        }
-
-	var ppid = 0;
-
-        resultList.forEach(function(process) {
-          if (process) {
-//            console.log( 'PID: %s, COMMAND: %s, ARGUMENTS: %s', process.pid, process.command, process.arguments );
-	    ppid = process.pid;
-	    ps.kill(process.pid, function(err) {
-	      if (err) {
-        	res.json(err);
-    		throw new Error( err );
-	      } else {
-//    		console.log( 'Process %s has been killed!', ppid);
-	      }
-	    });
-          }
-        });
-        res.json('OK');
-    });
+    exec_process.result('pkill python',function(){res.json('OK');});
 });
 
 // update
 app.post('/app/update', function(req, res) {
-    var config = ini.parse(fs.readFileSync(INI_FILE, 'utf-8')),
+    var parser = new iniReader.IniReader(),
+//    var config = ini.parse(fs.readFileSync(INI_FILE, 'utf-8')),
 	sect = req.body.sect, item = req.body.item, vals = req.body.vals;
 
 //    console.log('update', sect,item,vals);
-    config[sect][item] = vals;
-    fs.writeFileSync(INI_FILE, ini.stringify(config));
+//    config[sect][item] = vals;
+//    fs.writeFileSync(INI_FILE, ini.stringify(config, {whitespace: true}));
+    parser.load(INI_FILE);
+    parser.param([sect, item], vals);    // update the config
+    parser.write();
     res.json('OK');
+});
+
+// kivy INI update
+app.post('/app/kivyupdate', function(req, res) {
+/*    var kivyconfig = ini.parse(fs.readFileSync(KIVY_INI_FILE, 'utf-8')),
+	sect = req.body.sect, item = req.body.item, vals = req.body.vals;
+
+//    console.log('kivyupdate', sect,item,vals);
+    kivyconfig[sect][item] = vals;
+    fs.writeFileSync(KIVY_INI_FILE, ini.stringify(kivyconfig, {whitespace: true}));//*/
+
+    var parser = new iniReader.IniReader(),
+	sect = req.body.sect, item = req.body.item, vals = req.body.vals;
+    console.log('kivyupdate', sect,item,vals);
+
+    parser.load(KIVY_INI_FILE);
+    parser.param([sect, item], vals);    // update the config
+    parser.write();
+    res.json('OK');
+});
+
+// network settings update
+app.post('/app/networkupdate', function(req, res) {
+    var inet = req.body.inet, ipaddress = req.body.ipaddress, netmask = req.body.netmask,
+	gateway = req.body.gateway, dns = req.body.dns;
+//    console.log('networkupdate', inet, ipaddress, netmask, gateway, dns);
+    exec_process.result('./../indoorpy/setipaddress.sh '+inet+' '+ipaddress+' '+netmask+' '+gateway+' '+dns,function(){res.json('OK');});
 });
 
 // change admin password
 app.post('/app/pwdx', function(req, res) {
     var ret = 'OK', usr = req.body.usr, opwd = req.body.opwd, npwd = req.body.npwd, a = store.get('user');
 
-    console.log('xauth', usr, opwd, npwd, a);
-
+//    console.log('xauth', usr, opwd, npwd, a);
     if (a === undefined || a.name === undefined || a.p4ssw0rd === undefined ||
 	    a.name !== usr || a.p4ssw0rd !== opwd) {
 	ret = 'ERROR: bad username or password!';
@@ -172,7 +179,7 @@ app.post('/app/auth', function(req, res) {
 
 	a = store.get('user');
     }
-    console.log('auth', usr, pwd, a);
+//    console.log('auth', usr, pwd, a);
     o = a.name;
     k = a.p4ssw0rd;
 
@@ -181,12 +188,60 @@ app.post('/app/auth', function(req, res) {
     res.json(ret);
 });
 
+// reset all configs to factory settings
+app.post('/app/reset2factorysettings', function(req, res) {
+//  console.log('reset2factorysettings');
+    var path = SOUNDS, v = [];
+
+    fs.readdir(path, function(err, items) {
+	for (var i=0; i<items.length; i++) {
+	    if (items[i].indexOf('ring_') == 0) {
+		var file = path + '/' + items[i];
+		fs.unlinkSync(file);				// delete tone file
+		v.push(items[i]);
+	    }
+	}
+
+	fs.renameSync(INI_FILE, INI_FILE + '.backup');		// rename Indoor cfg file
+	v.push(INI_FILE);
+	fs.renameSync(STORAGE_FILE, STORAGE_FILE + '.backup');	// rename WebIndoor cfg file
+	v.push(STORAGE_FILE);
+	//v.push('OK');
+	//res.json(eval("(" + v + ")"));
+
+	exec_process.result('pkill python',function(a){console.log(a)});
+
+	res.json('OK');
+    });
+});
+
 // read JSON file
 app.get('/app/getfile/:dir/:name', function(req, res) {
     var name = '/' + req.params.dir + '/' + req.params.name,
 	fcontent = fs.readFileSync(name, 'utf-8');
 //    console.log('getfile', name, fcontent);
     res.json(eval("(" + fcontent + ")"));
+});
+
+
+/** express routes */
+app.get('/', function(req, res) {
+  res.sendFile('/index.html');
+//  res.redirect('/index.html');
+});
+
+// login without password
+app.get('/loggedinforeverasadmin', function(req, res) {
+  console.log('loggedinforeverasadmin');
+  res.sendFile('/index.html');
+/*
+////    exec_process.result('ps aux',function(a){console.log(a)});
+    fs.readFile(path.join(__dirname + '/public/forever.html'), function(err, data){
+	res.writeHead(200, {'Content-Type': 'text/html'});
+	res.write(data.toString());
+	console.log('loggedinforeverasadmin', data.toString());
+	res.end();
+    });//*/
 });
 
 app.get('*', function(req, res) {
