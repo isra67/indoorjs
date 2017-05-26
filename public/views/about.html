@@ -11,15 +11,56 @@
 	<div class="col-sm-12 text-left">
 	    <h3>Status</h3>
 	</div>
-	<div class="col-sm-12 text-left">
-	    <h4>Connection status</h4> {{ connection }}
+      </div>
+
+      <div class="row content">
+	<div class="col-sm-offset-1 col-sm-10">
+	 <table id="statustable" class="table table-striped">
+	  <tbody>
+	    <tr>
+	      <td>RPi S/N</td><td>{{rpiSN}}</td>
+	      <td>Indoor ver.</td><td>{{indoorVer}}</td>
+	    </tr>
+	    <tr>
+	      <td>Server ver.</td><td>{{serverVer}}</td>
+	      <td>WebPage ver.</td><td>{{webVer}}</td>
+	    </tr>
+	    <tr>
+	      <td colspan="4"> &nbsp; </td>
+	    </tr>
+	    <tr>
+	      <td>Indoor status</td><td>{{appConnectionFlag}}</td>
+	      <td>Audio status</td><td>{{audioFlag}}</td>
+	    </tr>
+	    <tr>
+	      <td>Video status</td><td><span ng-repeat="(k,v) in videoFlag track by k">{{k+1}}:{{ v }} </span></td>
+	      <td>Lock status</td><td><span ng-repeat="(k,v) in lockFlag track by k">{{k+1}}:{{ v }} </span></td>
+	    </tr>
+	    <tr>
+	      <td>SIP registration</td><td>{{sipRegistrationFlag}}</td>
+	      <td>SIP call status</td><td>{{sipFlag}}</td>
+	    </tr>
+	  </tbody>
+	 </table>
 	</div>
       </div>
+
+      <!--div class="row content">
+	<table class="table table-striped">
+	    <tr ng-repeat="(k,v) in statusInfos">
+	    <td>{{ langtxt(k) }}</td>
+	    <td>{{ v }}</td>
+	    </tr>
+	</table>
+      </div-->
     </div>
 
     <script>
     $(function() {
         highlightMenuItem();
+
+        $('#statustable td:nth-child(odd)').css({'font-weight':'bold','font-size':'16px'});
+        $('#statustable td:nth-child(even)').css({'font-size':'14px'});
 
     });
     </script>

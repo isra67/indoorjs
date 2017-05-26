@@ -431,18 +431,42 @@ app.controller('serviceCtrl', function ($scope, $rootScope, $location, services)
 
 //** ******************************************************************************* */
 app.controller('mainCtrl', function ($scope, $rootScope, $location, services) {
-    $scope.connection = '?';
 
-    var timerFlag = 0;
+    var timerFlag = 0, REFRESH_TIME = 4000;
+
+    //**  */
+    $scope.reinitScopes = function() {
+	$scope.appConnectionFlag = '?';
+	$scope.sipRegistrationFlag = '?';
+	$scope.sipFlag = '?';
+	$scope.audioFlag = '?';
+	$scope.lockFlag = [];
+	$scope.videoFlag = [];
+	$scope.rpiSN = '?';
+	$scope.indoorVer = '?';
+	$scope.serverVer = '?';
+	$scope.webVer = VERSION_STR;
+    };
 
     //**  */
     $scope.getStatusApp = function() {
 	services.getAppStatus().then(function(data) {
-	    var d = data.data;
+	    var d = JSON.parse(data.data);
 //	    console.log('getAppStatus:',d);
-	    $scope.connection = d.connection;
+//	    $scope.statusInfos = d;
+	    if (d.appConnectionFlag == '1') {
+		$scope.rpiSN = d.rpiSN;
+		$scope.sipFlag = d.sipFlag;
+		$scope.sipRegistrationFlag = d.sipRegistrationFlag;
+		$scope.audioFlag = d.audioFlag;
+		$scope.videoFlag = d.videoFlag;
+		$scope.lockFlag = d.lockFlag;
+		$scope.indoorVer = d.indoorVer;
+		$scope.serverVer = d.serverVer;
+	    } else $scope.reinitScopes();
+	    $scope.appConnectionFlag = d.appConnectionFlag == '1' ? 'OK' : 'UNKNOWN';
 	}, function(err) {
-	    $scope.connection = '?';
+	    $scope.appConnectionFlag = '?';
 	});
     };
 
@@ -450,10 +474,12 @@ app.controller('mainCtrl', function ($scope, $rootScope, $location, services) {
 	$location.path('/login');
     }
 
+    $scope.reinitScopes();
+
     //**  */
     if (timerFlag == 0) {
 	$scope.getStatusApp();
-	timerFlag = setInterval($scope.getStatusApp, 5000);
+	timerFlag = setInterval($scope.getStatusApp, REFRESH_TIME);
     }
 });
 
@@ -578,9 +604,9 @@ app.config(function($routeProvider, $locationProvider, $httpProvider) {
         templateUrl: 'views/upload.html',
         controller: 'uploadCtrl'
       })
-      .when('/loggedinforeverasadmin', {
+/*      .when('/loggedinforeverasadmin', {
         controller: 'foreverCtrl'
-      })
+      })//*/
       .otherwise({
         redirectTo: '/login'
       });

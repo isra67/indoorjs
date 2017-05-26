@@ -1,20 +1,18 @@
 var express = require('express')
   , bodyParser = require('body-parser')
+  , fileUpload = require('express-fileupload')
   , fs = require('fs')
-//  , ini = require('ini')
   , iniReader = require('inireader')
   , app = express()
   , server = require('http').createServer(app)
   , io = require('socket.io')(server)
   , net = require('net')
-//  , ps = require('ps-node')
-  , fileUpload = require('express-fileupload')
   , Storage = require('node-storage')
   , path = require("path")
 
   , exec_process = require('./lib/exec_process')
 
-  , STORAGE_FILE = 'public/storage/store.dat'
+  , STORAGE_FILE = path.join(__dirname +'/public/storage/store.dat')
   , store = new Storage(STORAGE_FILE)
   , PORT = 80
   , SOCKET_PORT = 8123
@@ -23,7 +21,10 @@ var express = require('express')
   , SOUNDS = './../indoorpy/sounds/'
   , MUSIC_DIR = SOUNDS + 'ring_'
   , sockets = -1
-  , appConnectionFlag = 0
+
+  , serverAppVersionString = '1.0.0.0'
+  , appStatusStruct = {}
+
   , webClients = [];
 
 
@@ -38,9 +39,10 @@ app.use(express.static(path.join(__dirname + '/node_modules')));
 /** API routes */
 // upload file
 app.post('/upload', function(req, res) {
+
   if (!req.files)
     return res.json('ERROR: No files were uploaded');//res.status(400).send('No files were uploaded.');
- 
+
   // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
   var sampleFile = req.files.file; //sampleFile
 
@@ -48,29 +50,25 @@ app.post('/upload', function(req, res) {
   sampleFile.mv(MUSIC_DIR + sampleFile.name, function(err) {
     if (err)
       return res.json('Server ERROR: ' + err);// res.status(500).send(err);
- 
+
     res.json('OK');// res.send('File uploaded!');
   });
 });
 
 // get all
 app.get('/app/all', function(req, res) {
-//    var config = ini.parse(fs.readFileSync(INI_FILE, 'utf-8'));
     var parser = new iniReader.IniReader(), config;
 
     parser.load(INI_FILE);
     config = parser.getBlock()
 
-//    console.log('All');//, config);
     res.json(config);
 });
 
 // get status
 app.get('/app/status', function(req, res) {
 //    console.log('Status');
-    var s = "{'connection': appConnectionFlag}",
-	v = eval("(" + s + ")");
-    res.json(v);
+    res.json(JSON.stringify(appStatusStruct));
 });
 
 // get tone list
@@ -110,12 +108,9 @@ app.post('/app/apply', function(req, res) {
 // update
 app.post('/app/update', function(req, res) {
     var parser = new iniReader.IniReader(),
-//    var config = ini.parse(fs.readFileSync(INI_FILE, 'utf-8')),
 	sect = req.body.sect, item = req.body.item, vals = req.body.vals;
-
 //    console.log('update', sect,item,vals);
-//    config[sect][item] = vals;
-//    fs.writeFileSync(INI_FILE, ini.stringify(config, {whitespace: true}));
+
     parser.load(INI_FILE);
     parser.param([sect, item], vals);    // update the config
     parser.write();
@@ -124,16 +119,9 @@ app.post('/app/update', function(req, res) {
 
 // kivy INI update
 app.post('/app/kivyupdate', function(req, res) {
-/*    var kivyconfig = ini.parse(fs.readFileSync(KIVY_INI_FILE, 'utf-8')),
-	sect = req.body.sect, item = req.body.item, vals = req.body.vals;
-
-//    console.log('kivyupdate', sect,item,vals);
-    kivyconfig[sect][item] = vals;
-    fs.writeFileSync(KIVY_INI_FILE, ini.stringify(kivyconfig, {whitespace: true}));//*/
-
     var parser = new iniReader.IniReader(),
 	sect = req.body.sect, item = req.body.item, vals = req.body.vals;
-    console.log('kivyupdate', sect,item,vals);
+//    console.log('kivyupdate', sect,item,vals);
 
     parser.load(KIVY_INI_FILE);
     parser.param([sect, item], vals);    // update the config
@@ -146,7 +134,8 @@ app.post('/app/networkupdate', function(req, res) {
     var inet = req.body.inet, ipaddress = req.body.ipaddress, netmask = req.body.netmask,
 	gateway = req.body.gateway, dns = req.body.dns;
 //    console.log('networkupdate', inet, ipaddress, netmask, gateway, dns);
-    exec_process.result('./../indoorpy/setipaddress.sh '+inet+' '+ipaddress+' '+netmask+' '+gateway+' '+dns,function(){res.json('OK');});
+    exec_process.result('./../indoorpy/setipaddress.sh '+inet+' '+ipaddress+' '+netmask+' '+gateway+' '+dns,
+	function(){res.json('OK');});
 });
 
 // change admin password
@@ -233,7 +222,7 @@ app.get('/', function(req, res) {
 // login without password
 app.get('/loggedinforeverasadmin', function(req, res) {
   console.log('loggedinforeverasadmin');
-  res.sendFile('/index.html');
+  res.sendFile('/forever.html');
 /*
 ////    exec_process.result('ps aux',function(a){console.log(a)});
     fs.readFile(path.join(__dirname + '/public/forever.html'), function(err, data){
@@ -252,16 +241,52 @@ app.get('*', function(req, res) {
 /** socket server */
 var socketServer = net.createServer(function(c) {
   console.log('socket connected');
-  appConnectionFlag = 1;
+  appStatusStruct.appConnectionFlag = 1;
+
+    // status info received
+    var processStatusInfo = function(msg) {
+//	console.log('processStatusInfo', msg);
+
+	if (msg === 'STOP') { appStatusStruct.appConnectionFlag = 0; }
+	else if (msg.indexOf('SIP:') == 0) { appStatusStruct.sipFlag = msg.substr('SIP: '.length); }
+	else if (msg.indexOf('SIPREG:') == 0) { appStatusStruct.sipRegistrationFlag = msg.substr('SIPREG: '.length); }
+	else if (msg.indexOf('AUDIO:') == 0) { appStatusStruct.audioFlag = msg.substr('AUDIO: '.length); }
+	else
+	if (msg.indexOf('VIDEO:') == 0) {
+	    var m = msg.substr('VIDEO: '.length), l = m.split(' ');
+	    appStatusStruct.videoFlag[l[0]] = l[1];
+	} else
+	if (msg.indexOf('LOCK:') == 0) {
+	    var m = msg.substr('LOCK: '.length), l = m.split(' ');
+	    appStatusStruct.lockFlag[l[0]] = l[1];
+	} else
+	if (msg.indexOf('INDOORVER:') == 0) {
+	    appStatusStruct.indoorVer = msg.substr('INDOORVER: '.length);
+	    if (appStatusStruct.indoorVer != store.get('system.indoorver'))
+		store.put('system.indoorver', appStatusStruct.indoorVer);
+	} else
+	if (msg.indexOf('RPISN:') == 0) {
+	    appStatusStruct.rpiSN = msg.substr('RPISN: '.length);
+	    if (appStatusStruct.rpiSN != store.get('system.rpi'))
+		store.put('system.rpi', appStatusStruct.rpiSN);
+	}
+    };
 
   c.on('end', function() {
     console.log('socket disconnected');
-    appConnectionFlag = 0;
+    appStatusStruct.appConnectionFlag = 0;
   });
 
   c.on('data', function(data) {
     var d = data.toString();
+
+    appStatusStruct.appConnectionFlag = 1;
+
     //console.log(d);
+    if (d.indexOf('[***]') == 0) {
+	processStatusInfo(d.substr('[***]'.length));
+	return;
+    }
 
     webClients.forEach(function(cl){
 	cl.emit('messages', d);
@@ -300,6 +325,13 @@ io.on('connection', function(client) {
 server.listen(PORT, function() {
     console.log(`Running app at ${PORT}`);
 
+    appStatusStruct.appConnectionFlag = 0;
+    appStatusStruct.serverVer = serverAppVersionString;
+    appStatusStruct.indoorVer = store.get('system.indoorver');
+    appStatusStruct.rpiSN = store.get('system.rpi');
+    appStatusStruct.lockFlag = [];
+    appStatusStruct.videoFlag = [];
+
     sockets = socketServer.listen(SOCKET_PORT, function() {
 	console.log(`Running socket at port ${SOCKET_PORT}`);
     });
@@ -313,7 +345,7 @@ server.listen(PORT, function() {
     sockets.on('end', function(data) {
 	console.log('disconnected:', data);
     });
-   sockets.on('error', function (e) {
+    sockets.on('error', function (e) {
 	console.log('sockets error:', e.code);
     });
 });
