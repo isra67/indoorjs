@@ -460,9 +460,18 @@ app.controller('mainCtrl', function ($scope, $rootScope, $location, services) {
 		$scope.sipRegistrationFlag = d.sipRegistrationFlag;
 		$scope.audioFlag = d.audioFlag;
 		$scope.videoFlag = d.videoFlag;
-		$scope.lockFlag = d.lockFlag;
+//		$scope.lockFlag = d.lockFlag;
 		$scope.indoorVer = d.indoorVer;
 		$scope.serverVer = d.serverVer;
+		for (var i = 0; i < d.lockFlag.length; i++) {
+		    if (d.lockFlag[i] != undefined) {
+			var l1 = Number('0x'+d.lockFlag[i]) & 0x0f,  l2 = (Number('0x'+d.lockFlag[i]) >> 4) & 0x0f;
+			$scope.lockFlag[i] = l1 ? 'U' : 'L';
+			$scope.lockFlag[i] = $scope.lockFlag[i] + (l2 ? 'U' : 'L');
+		    } else {
+			$scope.lockFlag[i] = '..';
+		    }
+		}
 	    } else $scope.reinitScopes();
 	    $scope.appConnectionFlag = d.appConnectionFlag == '1' ? 'OK' : 'UNKNOWN';
 	}, function(err) {
