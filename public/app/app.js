@@ -73,6 +73,11 @@ app.factory("services", ['$http', function($http) {
         return $http.post(serviceBase + 'networkupdate', {inet: inet, ipaddress: ipaddress, netmask: netmask, gateway: gateway, dns: dns}, headercfg);
     };
 
+    //**  */
+    obj.updateTunnel = function(flag) {
+        return $http.post(serviceBase + 'tunnelupdate', {flag: flag}, headercfg);
+    };
+
     return obj;
 }]);
 
@@ -107,7 +112,7 @@ app.controller('configCtrl', function ($scope, $rootScope, $location, services) 
 //	console.log('saveConfigItems 1:');
 	$scope.updateCfg = 2;
 
-	var updNetwork = 0, updLogs = 0, updRotation = 0, cfg;
+	var updNetwork = 0, updLogs = 0, updTunnel = 0, updRotation = 0, cfg;
 
 	for (var sect in $scope.customers) {
 	    if ($scope.customers.hasOwnProperty(sect)) {
@@ -118,9 +123,12 @@ app.controller('configCtrl', function ($scope, $rootScope, $location, services) 
 
 			    if (sect.indexOf('system') > -1) updNetwork = 1;
 			    else
-			    if (sect.indexOf('service') > -1 && item.indexOf('app_log') > -1) updLogs = 1;
-			    else
 			    if (sect.indexOf('gui') > -1 && item.indexOf('screen_orientation') > -1) updRotation = 1;
+			    else
+			    if (sect.indexOf('service') > -1) {
+				if (item.indexOf('app_log') > -1) updLogs = 1;
+				if (item.indexOf('tunnel_flag') > -1) updTunnel = 1;
+			    }
 
 			    $scope.configbackup[sect][item] = $scope.customers[sect][item]; // store new value
 
@@ -162,6 +170,15 @@ app.controller('configCtrl', function ($scope, $rootScope, $location, services) 
 	    cfg = $scope.customers['system'];
 //	    console.log('saveConfigItems: updNetwork', cfg['inet'], cfg['ipaddress'], cfg['netmask'], cfg['gateway'], cfg['dns']);
 	    services.updateNetwork(cfg['inet'], cfg['ipaddress'], cfg['netmask'], cfg['gateway'], cfg['dns'])
+	      .then(function(data) {
+//		console.log('changeItem:',data);
+	      }, function(err) {
+		console.log('changeItem:',err);
+	      });
+	}
+	if (updTunnel) {
+	    cfg = $scope.customers['service'];
+	    services.updateTunnel(cfg['tunnel_flag'])
 	      .then(function(data) {
 //		console.log('changeItem:',data);
 	      }, function(err) {
@@ -416,6 +433,7 @@ app.controller('serviceCtrl', function ($scope, $rootScope, $location, services)
     //**  */
     $scope.getSipLog = function() {
 	$scope.reinitScopes();
+	console.log('getSipLog:');
 	services.getFileContent('sip-log.dat').then(function(data){
 //	    console.log('getSipLog:',data.data);
 	    $scope.logs = data.data;

@@ -55,6 +55,7 @@ var langstr = {
     , 'masterpwd': 'Master password'
     , 'sip_log': 'SIP logging level'
     , 'app_log': 'App logging level'
+    , 'tunnel_flag': 'Enable/disable remote access'
     , 'command': 'Application'
     , 'sip': 'SIP'
     , 'devices': 'Audio device'

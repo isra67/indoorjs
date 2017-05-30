@@ -33,7 +33,7 @@
 		<button id="btnSelec" class="btn btn-sm btn-default" type="button" title="Select content for Copy & Paste"> Select </button>
 	    </div>
 	    <div ng-show="logs.length > 0" id="logcontent">
-		<div ng-repeat="v in logs"> {{ v }} </div>
+		<div ng-repeat="v in logs track by $index"> {{ v }} </div>
 	    </div>
 
 	    <div ng-show="keys.length > 0">

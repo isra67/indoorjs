@@ -138,6 +138,25 @@ app.post('/app/networkupdate', function(req, res) {
 	function(){res.json('OK');});
 });
 
+
+// tunnel status update
+app.post('/app/tunnelupdate', function(req, res) {
+    var flag = req.body.flag, st = Number(flag);
+//    console.log('tunnelupdate', flag, st);
+
+    if (flag == '1')
+	exec_process.result('./../indoorpy/tunnelservice.sh',
+	    function(err,data) {
+//    console.log('tunnelupdate', err, data);
+		res.json(err?'ERR':'OK');
+	    });
+    else
+	exec_process.result('./../indoorpy/tunnel.sh stop',
+	    function(err,data) {
+//    console.log('tunnelupdate', err, data);
+		res.json(err?'ERR':'OK');
+	    });
+});
 // change admin password
 app.post('/app/pwdx', function(req, res) {
     var ret = 'OK', usr = req.body.usr, opwd = req.body.opwd, npwd = req.body.npwd, a = store.get('user');
