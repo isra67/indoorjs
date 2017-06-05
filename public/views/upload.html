@@ -8,7 +8,7 @@
 	<div class="col-sm-2 text-right">
 	</div>
 
-	<div class="col-sm-offset-2 text-left">
+	<div class="col-sm-8 text-left">
 
 	    <table class="table table-striped" ng-show="tones.length > 0">
 		<thead>
@@ -19,7 +19,7 @@
 		    <td>{{ x.name }}</td><td>{{ x.size }}</td>
 		    <td>
 			<button type="button" class="btn btn-default btn-sm"
-			    title="Remove file {{$index + 1}} from device"
+			    title="Remove file {{$index + 1}} from Indoor device"
 			    onclick='$("#confirmRemoveModal").modal()'
 			    ng-click="removeTone($index)">
 			    <span class="glyphicon glyphicon-trash"></span> Remove
@@ -31,14 +31,14 @@
 
 	    <form name="myForm" ng-show="tones.length < 3">
 	      <div class="form-group">
-		<label for="file">Choose the ringing tone file:</label>
-		<input type="file" class="form-control" ngf-select ng-model="picFile" name="file"
-		    ngf-max-size="2MB" required ngf-model-invalid="errorFile">
+		<label for="file">Choose the ringing tone file (WAV max.5MB):</label>
+		<input type="file" class="form-control" name="file" accept=".wav" required
+		    ngf-select ng-model="picFile" ngf-max-size="5MB" ngf-model-invalid="errorFile">
 		<i ng-show="myForm.file.$error.required">* required</i><br>
-		<i ng-show="myForm.file.$error.maxSize">File too large {{errorFile.size / 1000000|number:1}}MB: max 2MB</i>
+		<i ng-show="myForm.file.$error.maxSize">File too large {{errorFile.size / 1000000|number:1}}MB: max 5MB</i>
 	      </div>
 <!--
-accept="image/*" 
+accept="image/*" accept="audio/*" 
 		<img ng-show="myForm.file.$valid" ngf-thumbnail="picFile" class="thumb"> <button ng-click="picFile = null" ng-show="picFile">Remove</button>
 -->
 	      <div class="form-group">
@@ -70,7 +70,7 @@ accept="image/*"
         </div>
         <div class="modal-body" style="padding:48px;">
             <p><h3>
-            You are going to remove file from RPi board!<br/><br/>Are you sure?
+            You are going to remove file from Indoor board!<br/><br/>Are you sure?
             </h3></p>
         </div>
         <div class="modal-footer">

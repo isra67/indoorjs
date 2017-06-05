@@ -286,7 +286,7 @@ app.controller('uploadCtrl', ['$scope', '$rootScope', 'Upload', '$timeout', '$lo
 	});
 
 	file.upload.then(function (response) {
-	    $timeout(function () { 
+	    $timeout(function () {
 		file.result = response.data;
 		$scope.getToneList();
 		$scope.picFile = '';
@@ -433,7 +433,7 @@ app.controller('serviceCtrl', function ($scope, $rootScope, $location, services)
     //**  */
     $scope.getSipLog = function() {
 	$scope.reinitScopes();
-	console.log('getSipLog:');
+//	console.log('getSipLog:');
 	services.getFileContent('sip-log.dat').then(function(data){
 //	    console.log('getSipLog:',data.data);
 	    $scope.logs = data.data;

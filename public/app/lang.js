@@ -1,14 +1,13 @@
 
 var langstr = {
     // services:
-      'in': 'Incomming calls'
-    , 'out': 'Outgoing calls'
-    , 'noansw': 'No answered calls'
-    , 'noresp': 'No responded calls'
+      'in': 'Answered incoming calls'
+    , 'out': 'Answered outgoing calls'
+    , 'noansw': 'Unanswered incoming calls'
+    , 'noresp': 'Unanswered outgoing calls'
 
     // config:
     , 'screen_saver': 'Screen saver [min]'
-//    , 'back_light': 'Turn display off [0/1]'
     , 'watches': 'Watches'
     , 'brightness': 'Brightness [20..255]'
     , 'dnd_mode': 'Do not disturb mode'

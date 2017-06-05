@@ -47,7 +47,7 @@ app.post('/upload', function(req, res) {
   var sampleFile = req.files.file; //sampleFile
 
   // Use the mv() method to place the file somewhere on your server 
-  sampleFile.mv(MUSIC_DIR + sampleFile.name, function(err) {
+  sampleFile.mv(MUSIC_DIR + sampleFile.name.replace(/[^a-z0-9]/gi, '_').toLowerCase(), function(err) {
     if (err)
       return res.json('Server ERROR: ' + err);// res.status(500).send(err);
 

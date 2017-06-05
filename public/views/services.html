@@ -18,7 +18,7 @@
             <p><button class="btn btn-md" type="button" title="Display SIP log" ng-click="getSipLog()">
 		SIP log
 	    </button></p>
-            <p><button id="rstApp" class="btn btn-md" type="button" title="Restart RPi GUI application">
+            <p><button id="rstApp" class="btn btn-md" type="button" title="Restart Indoor GUI application">
 		Restart app
 	    </button></p>
             <p><button id="rstCfg" class="btn btn-md" type="button" title="Restore factory settings">
@@ -26,7 +26,7 @@
 	    </button></p>
 	</div>
 
-	<div class="col-sm-offset-2 text-left">
+	<div class="col-sm-8 text-left">
 	    <div ng-show="msg != ''"> {{ msg }} </div>
 
 	    <div class="text-right" ng-show="logs.length > 0">
@@ -37,9 +37,13 @@
 	    </div>
 
 	    <div ng-show="keys.length > 0">
-		<div ng-repeat="(k,v) in cntrs" style="margin:16px 0px;">
-		    <span class="col-sm-3 text-right">{{langtxt(k)}}</span>: {{ v }}
-		</div>
+		<table class="table table-striped">
+		  <tr><td class="text-right"> {{langtxt('in')}} </td><td> {{ cntrs.in }} </td></tr>
+		  <tr><td class="text-right"> {{langtxt('noansw')}} </td><td> {{ cntrs.noansw }} </td></tr>
+		  <tr><td class="text-right"> &nbsp; </td><td> &nbsp; </td></tr>
+		  <tr><td class="text-right"> {{langtxt('out')}} </td><td> {{ cntrs.out }} </td></tr>
+		  <tr><td class="text-right"> {{langtxt('noresp')}} </td><td> {{ cntrs.noresp }} </td></tr>
+		</table>
 	    </div>
 	</div>
     </div>
@@ -81,6 +85,9 @@
 
 	$('#logcontent').css({'height':'450px', 'overflow':'auto', 'border':'1px solid black'});
 	$('#btnSelec').parent().css({'border':'1px solid black', 'border-bottom':'0', 'background-color':'#eee', 'padding':'1px'});
+
+	$('table tr td:first-child').css({'text-align':'right','width':'70%'});
+	$('table tr td:nth-child(2)').css({'text-align':'center'});
 
         $('#btnSelec').click(function(){
 //          console.log(this);
