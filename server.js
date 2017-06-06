@@ -10,6 +10,10 @@ var express = require('express')
   , Storage = require('node-storage')
   , path = require("path")
 
+/*
+  , ipMon = require('ip-monitor')
+  , ipWatcher = ipMon.createWatcher()//*/
+
   , exec_process = require('./lib/exec_process')
 
   , STORAGE_FILE = path.join(__dirname +'/public/storage/store.dat')
@@ -31,9 +35,21 @@ var express = require('express')
 app.use(express.static(path.join(__dirname + '/public')));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(fileUpload({ limits: { fileSize: .5 * 1024 * 1024 }}));
+app.use(fileUpload({ limits: { fileSize: 5.0 * 1024 * 1024 }}));
 
 app.use(express.static(path.join(__dirname + '/node_modules')));
+
+
+function iniStatStruct() {
+    appStatusStruct = {};
+
+    appStatusStruct.appConnectionFlag = 0;
+    appStatusStruct.serverVer = serverAppVersionString;
+    appStatusStruct.indoorVer = store.get('system.indoorver');
+    appStatusStruct.rpiSN = store.get('system.rpi');
+    appStatusStruct.lockFlag = [];
+    appStatusStruct.videoFlag = [];
+}
 
 
 /** API routes */
@@ -102,7 +118,11 @@ app.get('/app/gettones', function(req, res) {
 
 // restart python app
 app.post('/app/apply', function(req, res) {
-    exec_process.result('pkill python',function(){res.json('OK');});
+//    exec_process.result('pkill python',function(){
+    exec_process.result('../indoorpy/killme.sh',function(){
+	iniStatStruct();
+	res.json('OK');
+    });
 });
 
 // update
@@ -217,7 +237,10 @@ app.post('/app/reset2factorysettings', function(req, res) {
 	//v.push('OK');
 	//res.json(eval("(" + v + ")"));
 
-	exec_process.result('pkill python',function(a){console.log(a)});
+	exec_process.result('../indoorpy/killme.sh',function(a){console.log(a)});
+//	exec_process.result('pkill python',function(a){console.log(a)});
+
+	iniStatStruct();
 
 	res.json('OK');
     });
@@ -344,12 +367,7 @@ io.on('connection', function(client) {
 server.listen(PORT, function() {
     console.log(`Running app at ${PORT}`);
 
-    appStatusStruct.appConnectionFlag = 0;
-    appStatusStruct.serverVer = serverAppVersionString;
-    appStatusStruct.indoorVer = store.get('system.indoorver');
-    appStatusStruct.rpiSN = store.get('system.rpi');
-    appStatusStruct.lockFlag = [];
-    appStatusStruct.videoFlag = [];
+    iniStatStruct();
 
     sockets = socketServer.listen(SOCKET_PORT, function() {
 	console.log(`Running socket at port ${SOCKET_PORT}`);
@@ -367,4 +385,18 @@ server.listen(PORT, function() {
     sockets.on('error', function (e) {
 	console.log('sockets error:', e.code);
     });
+/*
+    ipWatcher.on('IP:change', function (prevIP, newIP) {
+	if (prevIP == null) return;
+	console.log('Prev IP: %s, New IP: %s', prevIP, newIP);
+	exec_process.result('pkill python',function(){console.log('Change IP -> restart');});
+    });
+    ipWatcher.on('IP:error', function (error) {
+	console.log('Cant get external IP: ' + error);
+    });
+    ipWatcher.on('IP:success', function (IP) {
+	console.log('Got IP: %s', IP);
+    });
+    ipWatcher.start();//*/
+
 });
