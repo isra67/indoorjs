@@ -5,7 +5,13 @@
       </div>
 
       <div class="row content">
-	<div class="text-right">
+	<div class="col-sm-6 text-left">
+	    Show: <input type="checkbox" id="cb_d" checked><label for="cb_d"> debug </label>
+	    <input type="checkbox" id="cb_i" checked><label for="cb_i"> info </label>
+	    <input type="checkbox" id="cb_w" checked><label for="cb_w"> warning </label>
+	    <input type="checkbox" id="cb_e" checked><label for="cb_e"> error </label>
+	</div>
+	<div class="col-sm-6 text-right">
 	  <button id="btnStart" type="button" class="btn btn-sm" title="Start logging">
 	    Start</button>
 	  <button id="btnStopp" type="button" class="btn btn-sm disabled" title="Finish logging">
@@ -15,6 +21,9 @@
 	  <button id="btnClear" type="button" class="btn btn-sm" title="Clear logging message window">
 	    Clear</button>
         </div>
+      </div>
+
+      <div class="row content">
 	<div id="content" class="text-left">
 	    <div id="logcontent">Waiting...</div>
 	</div>
@@ -39,19 +48,39 @@
         });
 
 	socket.on('messages', function(data) {
+	    var FILL = 'span';
 	    if (logActive > 0) {
-	      try {
-		$('<span>' + data + '</span><br/>').appendTo('#logcontent');
-		$('div#logcontent').animate({"scrollTop": $('div#logcontent')[0].scrollHeight}, 1);
-	      }
-	      catch(err) { }
+		var intclass = '', ix, i, j, a;
+		if (data.indexOf('[DEBUG ') > -1) intclass = ' cmsg_d';
+		else if (data.indexOf('[INFO ') > -1) intclass = ' cmsg_i';
+		else if (data.indexOf('[WARNING') > -1) intclass = ' cmsg_w';
+		else if (data.indexOf('[ERROR ') > -1) intclass = ' cmsg_e';
+
+		var regexp = /.\[DEBUG /gm;
+		regexp.lastIndex = 10;
+		data = data.replace(regexp, '<br/></'+FILL+'><'+FILL+' class="dbgmsgs cmsg_d">'+ ' [DEBUG ');
+		regexp = /.\[INFO /gm;
+		regexp.lastIndex = 10;
+		data = data.replace(regexp, '<br/></'+FILL+'><'+FILL+' class="dbgmsgs cmdg_i">'+ ' [INFO ');
+		regexp = /.\[WARNING /gm;
+		regexp.lastIndex = 10;
+		data = data.replace(regexp, '<br/></'+FILL+'><'+FILL+' class="dbgmsgs cmdg_w">'+ ' [WARNING ');
+		regexp = /.\[ERROR /gm;
+		regexp.lastIndex = 10;
+		data = data.replace(regexp, '<br/></'+FILL+'><'+FILL+' class="dbgmsgs cmdg_e">'+ ' [ERROR ');
+
+		try {
+		    $('<'+FILL+' class="dbgmsgs' + intclass + '">' + data + '<br/></'+FILL+'>').appendTo('#logcontent');
+		    $('div#logcontent').animate({"scrollTop": $('div#logcontent')[0].scrollHeight}, 1);
+		}
+		catch(err) { }
 	    }
 	});
 
 	$('#logcontent').css({'height':'450px', 'overflow':'auto', 'border':'1px solid black'});
-        $('#btnStopp').parent().css({'border':'1px solid black', 'border-bottom':'0', 'background-color':'#eee', 'padding':'1px'});
+        $('#cb_d').parent().parent().css({'border':'1px solid black', 'border-bottom':'0', 'background-color':'#eee', 'padding':'1px'});
 
-	$('#btnStart').click(function(){
+	$('#btnStart').click(function() {
 	    logActive = 1;
 	    $('#btnStart').addClass('disabled');
 	    $('#btnStopp').removeClass('disabled');
@@ -59,7 +88,7 @@
 	    $('#btnStopp').prop( "disabled", false );
 	});
 
-	$('#btnStopp').click(function(){
+	$('#btnStopp').click(function() {
 	    logActive = 0;
 	    $('#btnStart').removeClass('disabled');
 	    $('#btnStopp').addClass('disabled');
@@ -67,13 +96,33 @@
 	    $('#btnStopp').prop( "disabled", true );
 	});
 
-	$('#btnSelec').click(function(){
+	$('#btnSelec').click(function() {
 //	    console.log(this);
 	    selectText('logcontent');
 	});
 
-	$('#btnClear').click(function(){
+	$('#btnClear').click(function() {
 	    $('#logcontent').html('');
+	});
+
+	$('#cb_d').change(function() {
+	    if ($(this).is(":checked")) $('.cmsg_d').show();
+	    else $('.cmsg_d').hide();
+	});
+
+	$('#cb_i').change(function() {
+	    if ($(this).is(":checked")) $('.cmsg_i').show();
+	    else $('.cmsg_i').hide();
+	});
+
+	$('#cb_w').change(function() {
+	    if ($(this).is(":checked")) $('.cmsg_w').show();
+	    else $('.cmsg_w').hide();
+	});
+
+	$('#cb_e').change(function() {
+	    if ($(this).is(":checked")) $('.cmsg_e').show();
+	    else $('.cmsg_e').hide();
 	});
 
     });
