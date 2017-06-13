@@ -315,6 +315,11 @@ var socketServer = net.createServer(function(c) {
     };
 
   c.on('end', function() {
+    console.log('socket end');
+    appStatusStruct.appConnectionFlag = 0;
+  });
+
+  c.on('disconnect', function(){
     console.log('socket disconnected');
     appStatusStruct.appConnectionFlag = 0;
   });
@@ -331,7 +336,7 @@ var socketServer = net.createServer(function(c) {
     }
 
     webClients.forEach(function(cl){
-	cl.emit('messages', d);
+	try { cl.emit('messages', d); } catch (err) {}
     });
   });
 });
@@ -348,8 +353,9 @@ socketServer.on('error', function (e) {
 
 /** io server */
 io.on('connection', function(client) {
-//    console.log('Client:', client);
+//    console.log('Client:', client.id, client.handshake.address);
     webClients.push(client);
+    console.log('connection No:', webClients.length);
 
     client.on('msg_1', function(data) {
 //        console.log(data);
@@ -357,8 +363,15 @@ io.on('connection', function(client) {
     });
 
     client.on('end', function() {
-	console.log('disconnected:', client);
+	console.log('end:', client);
     });
+
+    client.on('disconnect', function(){
+	console.log('disconnected No:', webClients.length);
+	webClients.splice(webClients.indexOf(client),1);
+//	console.log('disconnected after', webClients.length);
+    });
+
 });
 
 
@@ -374,13 +387,16 @@ server.listen(PORT, function() {
     });
 
     sockets.on('connection', function(data) {
-	console.log('connection');
+	console.log('connection');//, data);
     });
     sockets.on('data', function(data) {
 	console.log(data);
     });
     sockets.on('end', function(data) {
-	console.log('disconnected:', data);
+	console.log('end:', data);
+    });
+    sockets.on('disconnect', function() {
+	console.log('disconnected:');
     });
     sockets.on('error', function (e) {
 	console.log('sockets error:', e.code);

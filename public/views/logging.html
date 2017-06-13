@@ -4,12 +4,12 @@
 
       </div>
 
-      <div class="row content">
-	<div class="col-sm-6 text-left">
-	    Show: <input type="checkbox" id="cb_d" checked><label for="cb_d"> debug </label>
-	    <input type="checkbox" id="cb_i" checked><label for="cb_i"> info </label>
-	    <input type="checkbox" id="cb_w" checked><label for="cb_w"> warning </label>
-	    <input type="checkbox" id="cb_e" checked><label for="cb_e"> error </label>
+      <div class="row content align-middle">
+	<div class="col-sm-6 text-left align-baseline" style="margin-top:3px">
+	    Show: &nbsp;<label for="cb_d"><input type="checkbox" id="cb_d" checked> debug </label>
+	    &nbsp;&nbsp;<label for="cb_i"><input type="checkbox" id="cb_i" checked> info </label>
+	    &nbsp;&nbsp;<label for="cb_w"><input type="checkbox" id="cb_w" checked> warning </label>
+	    &nbsp;&nbsp;<label for="cb_e"><input type="checkbox" id="cb_e" checked> error </label>
 	</div>
 	<div class="col-sm-6 text-right">
 	  <button id="btnStart" type="button" class="btn btn-sm" title="Start logging">
@@ -35,17 +35,17 @@
     <script>
 
     $(function() {
-//	console.log( "ready!", window.location.hostname );
-
         highlightMenuItem();
 
-	var socket = io.connect('http://' + window.location.hostname);
+	if (socket == null)
+	    socket = io.connect('http://' + window.location.hostname, {'forceNew': true});
 
         socket.on('connect', function() {
 	    $('#logcontent').html("Connected...<br/>");
-//	    console.log( "connect" );
-    	    socket.emit('msg_1', 'Hello World from client');
+	    socket.emit('msg_1', 'Hello World from client');
         });
+
+	socket.on('disconnect', function() { socket = null; });
 
 	socket.on('messages', function(data) {
 	    var FILL = 'span';
@@ -78,7 +78,7 @@
 	});
 
 	$('#logcontent').css({'height':'450px', 'overflow':'auto', 'border':'1px solid black'});
-        $('#cb_d').parent().parent().css({'border':'1px solid black', 'border-bottom':'0', 'background-color':'#eee', 'padding':'1px'});
+        $('#cb_d').parent().parent().parent().css({'border':'1px solid black', 'border-bottom':'0', 'background-color':'#eee', 'padding':'1px'});
 
 	$('#btnStart').click(function() {
 	    logActive = 1;

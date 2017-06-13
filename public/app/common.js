@@ -1,5 +1,6 @@
 
-var logActive = 0;   // logging activity flag
+var logActive = 0	// logging activity flag
+    , socket = null;	// connection to nodejs
 
 /** highlight menu item */
 function highlightMenuItem() {
@@ -18,6 +19,10 @@ function highlightMenuItem() {
     }
 
     logActive = 0;   // logging activity flag
+    if (socket != null) {
+	socket.disconnect();
+	socket = null;
+    }
 }
 
 /** select content for Copy&Paste */
