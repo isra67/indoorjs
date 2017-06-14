@@ -45,7 +45,7 @@
 	    socket.emit('msg_1', 'Hello World from client');
         });
 
-	socket.on('disconnect', function() { socket = null; });
+	socket.on('disconnect', function() { /*socket = null;*/ });
 
 	socket.on('messages', function(data) {
 	    var FILL = 'span';
@@ -74,6 +74,11 @@
 		    $('div#logcontent').animate({"scrollTop": $('div#logcontent')[0].scrollHeight}, 1);
 		}
 		catch(err) { }
+
+		if (!$('#cb_d').is(":checked")) $('.cmsg_d').hide();
+		if (!$('#cb_i').is(":checked")) $('.cmsg_i').hide();
+		if (!$('#cb_w').is(":checked")) $('.cmsg_w').hide();
+		if (!$('#cb_e').is(":checked")) $('.cmsg_e').hide();
 	    }
 	});
 
