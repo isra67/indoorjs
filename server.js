@@ -40,6 +40,7 @@ app.use(fileUpload({ limits: { fileSize: 5.0 * 1024 * 1024 }}));
 app.use(express.static(path.join(__dirname + '/node_modules')));
 
 
+// init diag struct
 function iniStatStruct() {
     appStatusStruct = {};
 
@@ -49,6 +50,17 @@ function iniStatStruct() {
     appStatusStruct.rpiSN = store.get('system.rpi');
     appStatusStruct.lockFlag = [];
     appStatusStruct.videoFlag = [];
+}
+
+
+// save KIVY config
+function updateKivyCfg(sect,item,vals) {
+    var parser = new iniReader.IniReader();,
+//    console.log('kivyupdate', sect,item,vals);
+
+    parser.load(KIVY_INI_FILE);
+    parser.param([sect, item], vals);    // update the Kivy config
+    parser.write();
 }
 
 
@@ -132,20 +144,21 @@ app.post('/app/update', function(req, res) {
 //    console.log('update', sect,item,vals);
 
     parser.load(INI_FILE);
-    parser.param([sect, item], vals);    // update the config
+    parser.param([sect, item], vals);    // update the Indoor config
     parser.write();
     res.json('OK');
 });
 
 // kivy INI update
 app.post('/app/kivyupdate', function(req, res) {
-    var parser = new iniReader.IniReader(),
+    var ////parser = new iniReader.IniReader(),
 	sect = req.body.sect, item = req.body.item, vals = req.body.vals;
 //    console.log('kivyupdate', sect,item,vals);
 
-    parser.load(KIVY_INI_FILE);
-    parser.param([sect, item], vals);    // update the config
-    parser.write();
+////    parser.load(KIVY_INI_FILE);
+////    parser.param([sect, item], vals);    // update the Kivy config
+////    parser.write();
+    updateKivyCfg(sect,item,vals);
     res.json('OK');
 });
 
@@ -220,6 +233,9 @@ app.post('/app/auth', function(req, res) {
 app.post('/app/reset2factorysettings', function(req, res) {
 //  console.log('reset2factorysettings');
     var path = SOUNDS, v = [];
+
+    updateKivyCfg('kivy','log_level','debug');
+    updateKivyCfg('graphics','rotation','0');
 
     fs.readdir(path, function(err, items) {
 	for (var i=0; i<items.length; i++) {
