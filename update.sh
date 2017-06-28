@@ -11,11 +11,15 @@
 cd /root/app
 
 ## synchronize
-git fetch https://isra67:eloeii3769@github.com/isra67/indoorjs.git
-#git reset --hard origin/master
+if [ -z "$1" ]; then
+    git fetch https://github.com/isra67/indoorjs.git
+else
+    git fetch https://isra67:$1@github.com/isra67/indoorjs.git
+fi
+
 git reset --hard gh/master
 git clean -dn
 
 ## install NPM files
-npm install
+npm install --silent
 
