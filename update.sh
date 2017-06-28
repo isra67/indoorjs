@@ -10,19 +10,10 @@
 ## working dir
 cd /root/app
 
-## backup INI file
-#cp -f indoor.ini /tmp
-
 ## synchronize
-git fetch --all
+git fetch https://isra67:eloeii3769@github.com/isra67/indoorjs.git
 git reset --hard origin/master
 git clean -dn
-
-## remove unnecessary files
-#rm -f my_lib/*.py
-
-## restore INI file
-#cp /tmp/indoor.ini /root/indoorpy
 
 ## install NPM files
 npm install
