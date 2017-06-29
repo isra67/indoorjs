@@ -10,6 +10,9 @@
 ## working dir
 cd /root/app
 
+## backup app file
+cp -f public/storage/store.dat /root/tmp
+
 ## synchronize
 if [ -z "$1" ]; then
     git fetch https://github.com/isra67/indoorjs.git
@@ -23,3 +26,8 @@ git clean -dn
 ## install NPM files
 npm install --silent
 
+## restore app file from backup
+cp -f /root/tmp/store.dat public/storage
+
+## save from cache
+sync

@@ -31,7 +31,7 @@ else
 	./update.sh $1
     fi
 
-    PID=`ps aux | grep -i '/node index' | grep -iv 'grep ' | sed 's/\s\+/ /g' | cut -d' ' -f 2`
+    PID=`ps aux | grep -i '/node server' | grep -iv 'grep ' | sed 's/\s\+/ /g' | cut -d' ' -f 2`
     kill $PID
 
 fi

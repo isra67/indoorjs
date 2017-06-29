@@ -55,7 +55,7 @@ function iniStatStruct() {
 
 // save KIVY config
 function updateKivyCfg(sect,item,vals) {
-    var parser = new iniReader.IniReader();,
+    var parser = new iniReader.IniReader();
 //    console.log('kivyupdate', sect,item,vals);
 
     parser.load(KIVY_INI_FILE);
