@@ -63,6 +63,8 @@ var langstr = {
     , 'system': 'Network'
     , 'about': 'About'
     , 'service': 'Service'
+    , 'timezones': 'Set timezone'
+    , 'timezone': 'Timezone'
     , '': ''
 
 };
