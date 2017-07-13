@@ -190,6 +190,15 @@ app.post('/app/tunnelupdate', function(req, res) {
 		res.json(err?'ERR':'OK');
 	    });
 });
+
+// timezone update
+app.post('/app/timezoneupdate', function(req, res) {
+    var tz = req.body.tz;
+    console.log('timezoneupdate', tz);
+    exec_process.result('./../indoorpy/settimezone.sh '+tz, function(){res.json('OK');});
+});
+
+
 // change admin password
 app.post('/app/pwdx', function(req, res) {
     var ret = 'OK', usr = req.body.usr, opwd = req.body.opwd, npwd = req.body.npwd, a = store.get('user');

@@ -78,6 +78,11 @@ app.factory("services", ['$http', function($http) {
         return $http.post(serviceBase + 'tunnelupdate', {flag: flag}, headercfg);
     };
 
+    //**  */
+    obj.updateTimezone = function(tz) {
+        return $http.post(serviceBase + 'timezoneupdate', {tz: tz}, headercfg);
+    };
+
     return obj;
 }]);
 
@@ -89,12 +94,19 @@ app.controller('configCtrl', function ($scope, $rootScope, $location, services) 
     $scope.keys = [];
     $scope.updateCfg = 0;
     $scope.defcfgkeys = Object.keys(defcfg);
+    $scope.inits = 1;
+    $scope.currTz = '';
+
+//    $rootScope.tzValues.length = 100;
+//    console.log('tzValues:',$rootScope.tzValues.length);
 
     //**  */
     $scope.cfgItemType = function(key) {
 //	console.log('cfgItemType:',key);
 	var i = $scope.defcfgkeys.indexOf(key);
 	if (i < 0) return [];
+	if (defcfg[key]['type'] === 'timezone') { return $rootScope.tzValues; }
+	else
 	if (defcfg[key]['type'] !== 'sel') return [];
 //	console.log('cfgItemType:',key,i,defcfg[key]['options']);
 	return defcfg[key]['options'].split(',');
@@ -102,7 +114,8 @@ app.controller('configCtrl', function ($scope, $rootScope, $location, services) 
 
     //**  */
     $scope.changeItem = function(sect,item,vals) {
-//	console.log('changeItem:',sect,item,vals);
+	if (sect === 'timezones' && item === 'timezone') vals = vals.val;
+	console.log('changeItem:',sect,item,vals);
 	$scope.updateCfg = 1;
 	$scope.customers[sect][item] = vals;
     };
@@ -112,7 +125,7 @@ app.controller('configCtrl', function ($scope, $rootScope, $location, services) 
 //	console.log('saveConfigItems 1:');
 	$scope.updateCfg = 2;
 
-	var updNetwork = 0, updLogs = 0, updTunnel = 0, updRotation = 0, cfg;
+	var updNetwork = 0, updLogs = 0, updTunnel = 0, updRotation = 0, updTimezone = 0, cfg;
 
 	for (var sect in $scope.customers) {
 	    if ($scope.customers.hasOwnProperty(sect)) {
@@ -124,6 +137,8 @@ app.controller('configCtrl', function ($scope, $rootScope, $location, services) 
 			    if (sect.indexOf('system') > -1) updNetwork = 1;
 			    else
 			    if (sect.indexOf('gui') > -1 && item.indexOf('screen_orientation') > -1) updRotation = 1;
+			    else
+			    if (sect.indexOf('timezones') > -1 && item.indexOf('timezone') > -1) updTimezone = 1;
 			    else
 			    if (sect.indexOf('service') > -1) {
 				if (item.indexOf('app_log') > -1) updLogs = 1;
@@ -145,7 +160,7 @@ app.controller('configCtrl', function ($scope, $rootScope, $location, services) 
 	    }
 	}
 
-//	console.log('changeItem:',updNetwork, updLogs, updRotation);
+//	console.log('changeItem:',updNetwork, updLogs, updRotation, updTimezone);
 	if (updLogs) {
 	    cfg = $scope.customers['service'];
 //	    console.log('saveConfigItems: updLogs', cfg['app_log']);
@@ -185,11 +200,22 @@ app.controller('configCtrl', function ($scope, $rootScope, $location, services) 
 		console.log('changeItem:',err);
 	      });
 	}
+	if (updTimezone) {
+	    cfg = $scope.customers['timezones'];
+	    services.updateTimezone(cfg['timezone'])
+	      .then(function(data) {
+//		console.log('changeItem:',data);
+	      }, function(err) {
+		console.log('changeItem:',err);
+	      });
+	}
     };
 
     //**  */
     services.getIniItems().then(function(data) {
 	var cfg = data.data, sortcfg = {};
+
+	$scope.inits = 1;
 
 	// sorting keys in INI:
 	for (var sect in cfg) {
@@ -231,6 +257,10 @@ app.controller('configCtrl', function ($scope, $rootScope, $location, services) 
 	}, function(err) {
 	    console.log('getIniItems:',err);
 	});
+
+	$scope.inits = 0;
+	$scope.currTz = $rootScope.tzValues.find(function(elem){ return elem.val === $scope.customers['timezones']['timezone'] });
+//	console.log('currTz:',$scope.currTz);
     });
 
     if ($rootScope.login == 0) {
@@ -647,6 +677,7 @@ app.run(['$location', '$rootScope', function($location, $rootScope) {
     $rootScope.login = 0;
     $rootScope.username = '';
     $rootScope.msgs = VERSION_STR;
+    $rootScope.tzValues = filltimezone();
 
     $rootScope.$on('$routeChangeSuccess', function (event, current, previous) {
         $rootScope.title = current.$$route.title;

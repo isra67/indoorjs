@@ -19,18 +19,25 @@
 		<div ng-repeat="(ke,va) in customers[k]" class="row">
 		  <span ng-hide="(va.indexOf('button_') > -1) || (ke === 'uptime')">
 		    <span class="col-sm-4 text-right"> {{langtxt(ke)}} </span>
-		    <input type="text" maxlength="128" class="col-sm-6"
-			ng-change="changeItem(k,ke,somename_$$k.id)"
+		    <input type="text" maxlength="128" class="col-sm-6" title="{{ke}}: {{somename_$index}}"
+			ng-change="changeItem(k,ke,somename_$index)"
 			ng-model-options="{ updateOn: 'keyup' }"
-			ng-show="cfgItemType(ke).length == 0"
-			ng-model="somename_$$k.id" ng-init="somename_$$k.id=va"
+			ng-show="ke !== 'timezone' && cfgItemType(ke).length == 0"
+			ng-model="somename_$index" ng-init="somename_$index=va"
 			ng-disabled="(ke.indexOf('app_') > -1) || (ke === 'serial')" />
-		    <select class="col-sm-6"
-			ng-change="changeItem(k,ke,somename_$$k.id)"
+		    <select class="col-sm-6" title="{{ke}}: {{key_$index}}"
+			ng-change="changeItem(k,ke,key_$index)"
 			ng-model-options="{ updateOn: 'change' }"
-			ng-show="cfgItemType(ke).length > 0"
+			ng-show="ke !== 'timezone' && cfgItemType(ke).length > 0"
 			ng-options="item for item in cfgItemType(ke)"
-			ng-model="somename_$$k.id" ng-init="somename_$$k.id=va">
+			ng-model="key_$index" ng-init="key_$index=va">
+		    </select>
+		    <select class="col-sm-6" title="{{ke}}: {{ke_$index.val}}"
+			ng-change="changeItem(k,ke,ke_$index)"
+			ng-model-options="{ updateOn: 'change' }"
+			ng-show="ke === 'timezone' && cfgItemType(ke).length > 0"
+			ng-options="item.text for item in tzValues track by item.val"
+			ng-model="ke_$index" ng-init="ke_$index=currTz">
 		    </select>
 		  </span>
 		</div>
@@ -39,7 +46,8 @@
 	  </div>
 	</div>
 
-	<div class="col-sm-4 col-sm-offset-4 text-center" ng-show="keys.length == 0">No INI found</div>
+	<div class="col-sm-4 col-sm-offset-4 text-center" ng-show="inits == 0 && keys.length == 0">No INI found</div>
+	<div class="col-sm-4 col-sm-offset-4 text-center" ng-show="inits != 0">Wait...</div>
       </div>
     </div>
 
