@@ -171,7 +171,6 @@ app.post('/app/networkupdate', function(req, res) {
 	function(){res.json('OK');});
 });
 
-
 // tunnel status update
 app.post('/app/tunnelupdate', function(req, res) {
     var flag = req.body.flag, st = Number(flag);
@@ -194,10 +193,26 @@ app.post('/app/tunnelupdate', function(req, res) {
 // timezone update
 app.post('/app/timezoneupdate', function(req, res) {
     var tz = req.body.tz;
-    console.log('timezoneupdate', tz);
+//    console.log('timezoneupdate', tz);
     exec_process.result('./../indoorpy/settimezone.sh '+tz, function(){res.json('OK');});
 });
 
+// app update
+app.post('/app/fullappupdate', function(req, res) {
+    console.log('fullappupdate');
+//return;
+    exec_process.result('./../indoorpy/appdiff.sh',
+	function(err,data) {
+	    console.log('fullappupdate #1', err, data);
+	    if (!err) {
+		exec_process.result('./appdiff.sh',
+		    function(err,data) {
+			console.log('fullappupdate #2', err, data);
+			res.json(err?'ERROR #2':'OK');
+		    });
+	    } else res.json('ERROR #1');
+	});
+});
 
 // change admin password
 app.post('/app/pwdx', function(req, res) {

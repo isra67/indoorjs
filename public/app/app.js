@@ -11,9 +11,7 @@ app.factory("services", ['$http', function($http) {
       , headercfg = {}; //{ headers : { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;' }};
 
     //**  */
-    obj.checkLogin = function(u,p) {
-        return $http.post(serviceBase + 'auth', {usr: u, pwd:p}, headercfg);
-    }
+    obj.checkLogin = function(u,p) { return $http.post(serviceBase + 'auth', {usr: u, pwd:p}, headercfg) }
 
     //**  */
     obj.applyPwdChange = function(u,oldPwd,newPwd) {
@@ -21,14 +19,10 @@ app.factory("services", ['$http', function($http) {
     }
 
     //**  */
-    obj.getAppStatus = function() {
-        return $http.get(serviceBase + 'status');
-    }
+    obj.getAppStatus = function() { return $http.get(serviceBase + 'status') }
 
     //**  */
-    obj.getIniItems = function() {
-        return $http.get(serviceBase + 'all');
-    }
+    obj.getIniItems = function() { return $http.get(serviceBase + 'all') }
 
     //**  */
     obj.getFileContent = function(name, dir='tmp') {
@@ -36,24 +30,19 @@ app.factory("services", ['$http', function($http) {
     }
 
     //**  */
-    obj.getToneList = function() {
-        return $http.get(serviceBase + 'gettones');
-    }
+    obj.getToneList = function() { return $http.get(serviceBase + 'gettones') }
 
     //**  */
-    obj.removeTone = function(name) {
-        return $http.get(serviceBase + 'deltone/' + name);
-    }
+    obj.removeTone = function(name) { return $http.get(serviceBase + 'deltone/' + name) }
 
     //**  */
-    obj.applyCfgChanges = function() {
-        return $http.post(serviceBase + 'apply');
-    }
+    obj.applyCfgChanges = function() { return $http.post(serviceBase + 'apply') }
 
     //**  */
-    obj.factoryResetConfig = function() {
-        return $http.post(serviceBase + 'reset2factorysettings');
-    }
+    obj.factoryResetConfig = function() { return $http.post(serviceBase + 'reset2factorysettings') }
+
+    //**  */
+    obj.fullAppUpdate = function() { return $http.post(serviceBase + 'fullappupdate') }
 
     //**  */
     obj.updateIniItem = function(sect,item,vals) {
@@ -263,9 +252,7 @@ app.controller('configCtrl', function ($scope, $rootScope, $location, services) 
 //	console.log('currTz:',$scope.currTz);
     });
 
-    if ($rootScope.login == 0) {
-	$location.path('/login');
-    }
+    if ($rootScope.login == 0) { $location.path('/login') }
 });
 
 
@@ -330,9 +317,7 @@ app.controller('uploadCtrl', ['$scope', '$rootScope', 'Upload', '$timeout', '$lo
 	});
     };
 
-    if ($rootScope.login == 0) {
-	$location.path('/login');
-    }
+    if ($rootScope.login == 0) { $location.path('/login') }
 
     $scope.getToneList();
 }]);
@@ -358,9 +343,7 @@ app.controller('foreverCtrl', function ($scope, $rootScope, $location, services)
 app.controller('logCtrl', function ($scope, $rootScope, $location, services) {
     $scope.logs = [];
 
-    if ($rootScope.login == 0) {
-	$location.path('/login');
-    }
+    if ($rootScope.login == 0) { $location.path('/login') }
 });
 
 
@@ -409,19 +392,32 @@ app.controller('serviceCtrl', function ($scope, $rootScope, $location, services)
     $scope.factoryResetConfig = function() {
 	$scope.reinitScopes();
 	services.factoryResetConfig().then(function(data){
-	    console.log('factoryResetConfig:',data);
+//	    console.log('factoryResetConfig:',data);
 	    //$location.path('/');
 	    $scope.msg = data.data;
 	}, function(err) {
-	    console.log('factoryResetConfig:',err);
+//	    console.log('factoryResetConfig:',err);
 	    $scope.msg = err;
 	    $location.path('/');
 	});
     };
+
     //**  */
     $scope.restartApp = function() {
 	$scope.reinitScopes();
 	services.applyCfgChanges().then(function(data){
+	    $scope.msg = data.data;
+	}, function(err) {
+//	    console.log('restartApp:',err);
+	    $scope.msg = err;
+	    $location.path('/');
+	});
+    };
+
+    //**  */
+    $scope.fullApplicationUpdate = function() {
+	$scope.reinitScopes();
+	services.fullAppUpdate().then(function(data){
 	    $scope.msg = data.data;
 	}, function(err) {
 //	    console.log('restartApp:',err);
@@ -471,9 +467,7 @@ app.controller('serviceCtrl', function ($scope, $rootScope, $location, services)
 	});
     };
 
-    if ($rootScope.login == 0) {
-	$location.path('/login');
-    }
+    if ($rootScope.login == 0) { $location.path('/login') }
 });
 
 
@@ -527,9 +521,7 @@ app.controller('mainCtrl', function ($scope, $rootScope, $location, services) {
 	});
     };
 
-    if ($rootScope.login == 0) {
-	$location.path('/login');
-    }
+    if ($rootScope.login == 0) { $location.path('/login') }
 
     $scope.reinitScopes();
 
@@ -548,13 +540,9 @@ app.controller('basicCtrl', function ($scope, $rootScope, $location, $compile, s
     $scope.errmsg = '';
 
     //**  */
-    $scope.langtxt = function(key) {
-	return langstr[key] || key;
-    };
+    $scope.langtxt = function(key) { return langstr[key] || key };
 
-    if ($rootScope.login == 0) {
-	$location.path('/login');
-    }
+    if ($rootScope.login == 0) { $location.path('/login') }
 
     //**  */
     $scope.doLogout = function() {
