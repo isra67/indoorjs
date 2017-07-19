@@ -48,7 +48,7 @@ function iniStatStruct() {
     appStatusStruct.serverVer = serverAppVersionString;
     appStatusStruct.indoorVer = store.get('system.indoorver');
     appStatusStruct.rpiSN = store.get('system.rpi');
-    appStatusStruct.lockFlag = [];
+    appStatusStruct.lockFlag = ['?','?','?','?'];
     appStatusStruct.videoFlag = [];
 }
 
@@ -351,7 +351,41 @@ var socketServer = net.createServer(function(c) {
 	    appStatusStruct.rpiSN = msg.substr('RPISN: '.length);
 	    if (appStatusStruct.rpiSN != store.get('system.rpi'))
 		store.put('system.rpi', appStatusStruct.rpiSN);
+	} else
+	if (msg.indexOf('STRUCT:') == 0) {
+	    msg = msg.replace(/u\'/g, "\'");
+	    msg = msg.replace(/\'/g, "\"");
+	    console.log('processStatusInfo', msg);
+	    var struct = JSON.parse(msg.substr('STRUCT:'.length));
+	    console.log('processStatusInfo', struct);
+	    for (var k in struct) {
+		if (struct.hasOwnProperty(k)) {
+//		    console.log("Key is " + k + ", value is " + struct[k]);
+		    if (k === 'SIP') appStatusStruct.sipFlag = struct[k];
+		    else if (k === 'SIPREG') appStatusStruct.sipRegistrationFlag = struct[k];
+		    else if (k === 'AUDIO') appStatusStruct.audioFlag = struct[k];
+		    else if (k === 'VIDEO') {
+			for (var kk in struct[k]) {
+			    if (struct[k].hasOwnProperty(kk)) {
+				appStatusStruct.videoFlag[Number(kk)] = struct[k][kk];
+			    }
+			}
+			if (appStatusStruct.lockFlag.length > appStatusStruct.videoFlag.length)
+			    appStatusStruct.lockFlag.length = appStatusStruct.videoFlag.length;
+		    } else if (k === 'LOCK') {
+			for (var kk in struct[k]) {
+			    if (struct[k].hasOwnProperty(kk)) {
+				appStatusStruct.lockFlag[Number(kk)] = struct[k][kk];
+			    }
+			}
+		    } else if (k === 'INDOORVER') appStatusStruct.indoorVer = struct[k];
+		    else if (k === 'RPISN') appStatusStruct.rpiSN = struct[k];
+		}
+	    }
+	} else {
+	    console.log('processStatusInfo', msg);
 	}
+//	console.log('statusStruct', appStatusStruct);
     };
 
   c.on('end', function() {
