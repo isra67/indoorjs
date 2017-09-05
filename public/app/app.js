@@ -488,6 +488,8 @@ app.controller('mainCtrl', function ($scope, $rootScope, $location, services) {
 	$scope.indoorVer = '?';
 	$scope.serverVer = '?';
 	$scope.webVer = VERSION_STR;
+	$scope.ip_addr = '?';
+	$scope.mac_addr = '?';
     };
 
     //**  */
@@ -505,6 +507,8 @@ app.controller('mainCtrl', function ($scope, $rootScope, $location, services) {
 //		$scope.lockFlag = d.lockFlag;
 		$scope.indoorVer = d.indoorVer;
 		$scope.serverVer = d.serverVer;
+		$scope.ip_addr = d.ipaddr.split(' ',1)[0];
+		$scope.mac_addr = d.macaddr;
 		for (var i = 0; i < d.lockFlag.length; i++) {
 		    if (d.lockFlag[i] != undefined) {
 			var l1 = Number('0x'+d.lockFlag[i]) & 0x0f,  l2 = (Number('0x'+d.lockFlag[i]) >> 4) & 0x0f;

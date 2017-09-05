@@ -5,7 +5,8 @@ var defcfg = {
 ////    , 'back_light': 'Turn display off [0/1]'
     , 'watches': {'type':'sel','options':'analog,digital,none','position':2}
     , 'brightness': {'type':'input','range':'20-255','position':3}
-    , 'dnd_mode': {'type':'sel','options':'True,False','position':4}
+    , 'outgoing_calls': {'type':'sel','options':'True,False','position':4}
+    , 'dnd_mode': {'type':'sel','options':'True,False','position':5}
     , 'sip_mode': {'type':'sel','options':'SIP server,peer-to-peer','position':1}
     , 'sip_username': {'type':'input','range':'','position':4}
     , 'sip_server_addr': {'type':'input','range':'','position':2}

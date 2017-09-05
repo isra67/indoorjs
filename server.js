@@ -352,12 +352,18 @@ var socketServer = net.createServer(function(c) {
 	    if (appStatusStruct.rpiSN != store.get('system.rpi'))
 		store.put('system.rpi', appStatusStruct.rpiSN);
 	} else
+	if (msg.indexOf('MACADDR:') == 0) {
+	    appStatusStruct.macaddr = msg.substr('MACADDR: '.length);
+	} else
+	if (msg.indexOf('IPADDR:') == 0) {
+	    appStatusStruct.ipaddr = msg.substr('IPADDR: '.length);
+	} else
 	if (msg.indexOf('STRUCT:') == 0) {
 	    msg = msg.replace(/u\'/g, "\'");
 	    msg = msg.replace(/\'/g, "\"");
-	    console.log('processStatusInfo', msg);
+//	    console.log('processStatusInfo', msg);
 	    var struct = JSON.parse(msg.substr('STRUCT:'.length));
-	    console.log('processStatusInfo', struct);
+//	    console.log('processStatusInfo', struct);
 	    for (var k in struct) {
 		if (struct.hasOwnProperty(k)) {
 //		    console.log("Key is " + k + ", value is " + struct[k]);
@@ -380,6 +386,8 @@ var socketServer = net.createServer(function(c) {
 			}
 		    } else if (k === 'INDOORVER') appStatusStruct.indoorVer = struct[k];
 		    else if (k === 'RPISN') appStatusStruct.rpiSN = struct[k];
+		    else if (k === 'MACADDR') appStatusStruct.macaddr = struct[k];
+		    else if (k === 'IPADDR') appStatusStruct.ipaddr = struct[k];
 		}
 	    }
 	} else {
