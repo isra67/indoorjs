@@ -5,7 +5,8 @@ var timezones = {"Africa/Abidjan":0,"Africa/Accra":0,"Africa/Addis_Ababa":180,"A
 
 
 /** vyplnenie prvku SELECT udajmi pre casove pasma */
-function filltimezone(el='',val='Europe/Brussels') {
+//function filltimezone(el='',val='Europe/Brussels') {
+function filltimezone(el,val) {
     var A = [], P = [], R = [], c = 10000000;
 
     for (var k in timezones)
@@ -31,9 +32,11 @@ function filltimezone(el='',val='Europe/Brussels') {
 
     // vyplnenie SELECT:
     for (var k in A) {
-        var temp = A[k].key.split('/',2), ww = Number(A[k].val),
+        var temp = ['',''], ww = Number(A[k].val),
           s = ww < 0 ? '-' : '+', w = ww < 0 ? ww * -1 : ww,
           wh = Math.floor(w / 60), wm = w % 60;
+
+	try { temp = A[k].key.split('/',2); } catch (e) { continue; }
 
         if (wh < 10) wh = '0' + wh;
         if (wm < 10) wm = '0' + wm;

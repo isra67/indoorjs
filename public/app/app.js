@@ -25,8 +25,9 @@ app.factory("services", ['$http', function($http) {
     obj.getIniItems = function() { return $http.get(serviceBase + 'all') }
 
     //**  */
-    obj.getFileContent = function(name, dir='tmp') {
-        return $http.get(serviceBase + 'getfile/' + dir + '/' + name);
+    obj.getFileContent = function(name, dir) {
+	var d = (dir == undefined) ? 'tmp' : dir;
+        return $http.get(serviceBase + 'getfile/' + d + '/' + name);
     }
 
     //**  */
@@ -507,7 +508,7 @@ app.controller('mainCtrl', function ($scope, $rootScope, $location, services) {
 //		$scope.lockFlag = d.lockFlag;
 		$scope.indoorVer = d.indoorVer;
 		$scope.serverVer = d.serverVer;
-		$scope.ip_addr = d.ipaddr.split(' ',1)[0];
+		$scope.ip_addr = d.ipaddr;//.split(' ',1)[0];
 		$scope.mac_addr = d.macaddr;
 		for (var i = 0; i < d.lockFlag.length; i++) {
 		    if (d.lockFlag[i] != undefined) {
@@ -669,7 +670,7 @@ app.run(['$location', '$rootScope', function($location, $rootScope) {
     $rootScope.login = 0;
     $rootScope.username = '';
     $rootScope.msgs = VERSION_STR;
-    $rootScope.tzValues = filltimezone();
+    $rootScope.tzValues = filltimezone('','Europe/Brussels');
 
     $rootScope.$on('$routeChangeSuccess', function (event, current, previous) {
         $rootScope.title = current.$$route.title;
