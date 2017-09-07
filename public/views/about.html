@@ -17,6 +17,12 @@
 	<div class="col-sm-offset-1 col-sm-10">
 	 <table id="statustable" class="table table-striped">
 	  <tbody>
+	    <tr class="text-center">
+	      <td colspan="4">Build version <span id="buildVer"></span></td>
+	    </tr>
+	    <tr>
+	      <td colspan="4"> &nbsp; </td>
+	    </tr>
 	    <tr>
 	      <td>Indoor S/N</td><td>{{rpiSN}}</td>
 	      <td>Indoor ver.</td><td>{{indoorVer}}</td>
@@ -47,6 +53,7 @@
 	  </tbody>
 	 </table>
 	</div>
+	<p>&nbsp;</p>
       </div>
 
       <!--div class="row content">
@@ -58,13 +65,17 @@
 	</table>
       </div-->
     </div>
+    <p>&nbsp;</p>
 
     <script>
     $(function() {
+	$('#buildVer').html(buildVersionNumber);
+
         highlightMenuItem();
 
         $('#statustable td:nth-child(odd)').css({'font-weight':'bold','font-size':'16px'});
         $('#statustable td:nth-child(even)').css({'font-size':'14px'});
+        $('#statustable tr:first td').css({'font-weight':'bold','font-size':'20px'});
 
     });
     </script>

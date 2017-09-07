@@ -359,8 +359,10 @@ var socketServer = net.createServer(function(c) {
 	    appStatusStruct.ipaddr = msg.substr('IPADDR: '.length);
 	} else
 	if (msg.indexOf('STRUCT:') == 0) {
-	    msg = msg.replace(/u\'/g, "\'");
-	    msg = msg.replace(/\'/g, "\"");
+	    iniStatStruct();
+
+	    msg = msg.replace(/u\'/g, '\'');
+	    msg = msg.replace(/\'/g, '\"');		// "
 //	    console.log('processStatusInfo', msg);
 	    var struct = JSON.parse(msg.substr('STRUCT:'.length));
 //	    console.log('processStatusInfo', struct);
@@ -379,11 +381,14 @@ var socketServer = net.createServer(function(c) {
 			if (appStatusStruct.lockFlag.length > appStatusStruct.videoFlag.length)
 			    appStatusStruct.lockFlag.length = appStatusStruct.videoFlag.length;
 		    } else if (k === 'LOCK') {
+			appStatusStruct.lockFlag = appStatusStruct.videoFlag;
 			for (var kk in struct[k]) {
 			    if (struct[k].hasOwnProperty(kk)) {
 				appStatusStruct.lockFlag[Number(kk)] = struct[k][kk];
 			    }
 			}
+//			if (appStatusStruct.lockFlag.length > appStatusStruct.videoFlag.length)
+//			    appStatusStruct.lockFlag.length = appStatusStruct.videoFlag.length;
 		    } else if (k === 'INDOORVER') appStatusStruct.indoorVer = struct[k];
 		    else if (k === 'RPISN') appStatusStruct.rpiSN = struct[k];
 		    else if (k === 'MACADDR') appStatusStruct.macaddr = struct[k];
@@ -399,11 +404,15 @@ var socketServer = net.createServer(function(c) {
   c.on('end', function() {
     console.log('socket end');
     appStatusStruct.appConnectionFlag = 0;
+
+//    iniStatStruct();
   });
 
   c.on('disconnect', function(){
     console.log('socket disconnected');
     appStatusStruct.appConnectionFlag = 0;
+
+//    iniStatStruct();
   });
 
   c.on('data', function(data) {
@@ -437,7 +446,7 @@ socketServer.on('error', function (e) {
 io.on('connection', function(client) {
 //    console.log('Client:', client.id, client.handshake.address);
     webClients.push(client);
-    console.log('connection No:', webClients.length);
+//    console.log('connection No:', webClients.length);
 
     client.on('msg_1', function(data) {
 //        console.log(data);
@@ -449,7 +458,7 @@ io.on('connection', function(client) {
     });
 
     client.on('disconnect', function(){
-	console.log('disconnected No:', webClients.length);
+//	console.log('disconnected No:', webClients.length);
 	webClients.splice(webClients.indexOf(client),1);
 //	console.log('disconnected after', webClients.length);
     });

@@ -9,8 +9,11 @@ var timezones = {"Africa/Abidjan":0,"Africa/Accra":0,"Africa/Addis_Ababa":180,"A
 function filltimezone(el,val) {
     var A = [], P = [], R = [], c = 10000000;
 
-    for (var k in timezones)
+    for (var k in timezones) {
+	var t = k.toUpperCase();
+	if (t.indexOf('ETC') > -1 || t.indexOf('GMT') > 0) continue;
         A.push({'key': k,'val': timezones[k]});
+    }
 
     // triedenie podla posunu casu pasma:
     A.sort(function(a, b) { return a.val - b.val });
@@ -45,7 +48,7 @@ function filltimezone(el,val) {
           //$('#tzSel').append("<option value='"+A[k].key+"'>"+A[k].key+"</option>");
           $('#' + el).append("<option value='"+A[k].key+"'>"+'UTC ' + s + wh + ':' + wm + ' ' + temp[1]+"</option>");
 	} else {
-          R.push({'text': 'UTC ' + s + wh + ':' + wm + ' ' + temp[1],'val': A[k].key});
+          R.push({'text': 'UTC ' + s + wh + ':' + wm + ' ' + temp[1], 'val': A[k].key, 'area': temp[0]});
 	}
     }
 

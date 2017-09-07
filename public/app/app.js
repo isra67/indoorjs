@@ -8,7 +8,8 @@ var app = angular.module('myApp', ['ngRoute', 'ngFileUpload']);
 app.factory("services", ['$http', function($http) {
     var serviceBase = '/app/'
       , obj = {}
-      , headercfg = {}; //{ headers : { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;' }};
+      , headercfg = {headers : { 'Expires': '-1', 'Pragma': 'no-cache'}}; //{ headers : { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;' }};
+//      , headercfg = {}; //{ headers : { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;' }};
 
     //**  */
     obj.checkLogin = function(u,p) { return $http.post(serviceBase + 'auth', {usr: u, pwd:p}, headercfg) }
@@ -19,31 +20,31 @@ app.factory("services", ['$http', function($http) {
     }
 
     //**  */
-    obj.getAppStatus = function() { return $http.get(serviceBase + 'status') }
+    obj.getAppStatus = function() { return $http.get(serviceBase + 'status', headercfg) }
 
     //**  */
-    obj.getIniItems = function() { return $http.get(serviceBase + 'all') }
+    obj.getIniItems = function() { return $http.get(serviceBase + 'all', headercfg) }
 
     //**  */
     obj.getFileContent = function(name, dir) {
 	var d = (dir == undefined) ? 'tmp' : dir;
-        return $http.get(serviceBase + 'getfile/' + d + '/' + name);
+        return $http.get(serviceBase + 'getfile/' + d + '/' + name, headercfg);
     }
 
     //**  */
-    obj.getToneList = function() { return $http.get(serviceBase + 'gettones') }
+    obj.getToneList = function() { return $http.get(serviceBase + 'gettones', headercfg) }
 
     //**  */
-    obj.removeTone = function(name) { return $http.get(serviceBase + 'deltone/' + name) }
+    obj.removeTone = function(name) { return $http.get(serviceBase + 'deltone/' + name, headercfg) }
 
     //**  */
-    obj.applyCfgChanges = function() { return $http.post(serviceBase + 'apply') }
+    obj.applyCfgChanges = function() { return $http.post(serviceBase + 'apply', headercfg) }
 
     //**  */
-    obj.factoryResetConfig = function() { return $http.post(serviceBase + 'reset2factorysettings') }
+    obj.factoryResetConfig = function() { return $http.post(serviceBase + 'reset2factorysettings', headercfg) }
 
     //**  */
-    obj.fullAppUpdate = function() { return $http.post(serviceBase + 'fullappupdate') }
+    obj.fullAppUpdate = function() { return $http.post(serviceBase + 'fullappupdate', headercfg) }
 
     //**  */
     obj.updateIniItem = function(sect,item,vals) {
@@ -250,7 +251,8 @@ app.controller('configCtrl', function ($scope, $rootScope, $location, services) 
 
 	$scope.inits = 0;
 	$scope.currTz = $rootScope.tzValues.find(function(elem){ return elem.val === $scope.customers['timezones']['timezone'] });
-//	console.log('currTz:',$scope.currTz);
+	$scope.ke_timezone = $scope.currTz;
+	console.log('currTz:',$scope.currTz, $scope.ke_timezone);
     });
 
     if ($rootScope.login == 0) { $location.path('/login') }
@@ -500,6 +502,7 @@ app.controller('mainCtrl', function ($scope, $rootScope, $location, services) {
 //	    console.log('getAppStatus:',d);
 //	    $scope.statusInfos = d;
 	    if (d.appConnectionFlag == '1') {
+//		$scope.reinitScopes();
 		$scope.rpiSN = d.rpiSN;
 		$scope.sipFlag = d.sipFlag;
 		$scope.sipRegistrationFlag = d.sipRegistrationFlag;
@@ -519,7 +522,11 @@ app.controller('mainCtrl', function ($scope, $rootScope, $location, services) {
 			$scope.lockFlag[i] = '..';
 		    }
 		}
-	    } else $scope.reinitScopes();
+		$scope.lockFlag.length = $scope.videoFlag.length;
+	    } else {
+		if ($scope.appConnectionFlag == 'OK') $scope.appConnectionFlag = '?';
+		else $scope.reinitScopes();
+	    }
 	    $scope.appConnectionFlag = d.appConnectionFlag == '1' ? 'OK' : 'UNKNOWN';
 	}, function(err) {
 	    $scope.appConnectionFlag = '?';
@@ -670,7 +677,13 @@ app.run(['$location', '$rootScope', function($location, $rootScope) {
     $rootScope.login = 0;
     $rootScope.username = '';
     $rootScope.msgs = VERSION_STR;
+
     $rootScope.tzValues = filltimezone('','Europe/Brussels');
+/*    var tmp = [];
+    for (var i = 0; i < $rootScope.tzValues.length; i++) {
+	if (tmp.indexOf($rootScope.tzValues[i].area) < 0) tmp.push($rootScope.tzValues[i].area);
+    }
+    $rootScope.tzAreas = tmp;//*/
 
     $rootScope.$on('$routeChangeSuccess', function (event, current, previous) {
         $rootScope.title = current.$$route.title;

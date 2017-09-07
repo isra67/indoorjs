@@ -14,10 +14,11 @@
         <div class="row content">
 	  <div id="content" class="col-sm-12 text-left" ng-show="keys.length > 0">
 	    <ul>
-	    <li ng-repeat="k in keys">
+	    <!-- indoor.ini elements -->
+	    <li ng-repeat="k in keys" ng-show="k !== 'timezones'">
 		<h4><span class="label label-info">{{langtxt(k)}}</span></h4>
-		<div ng-repeat="(ke,va) in customers[k]" class="row">
-		  <span ng-hide="(va.indexOf('button_') > -1) || (ke === 'uptime')">
+		<div ng-repeat="(ke,va) in customers[k]" class="row"
+		     ng-hide="(va.indexOf('button_') > -1) || (ke === 'uptime') || (username == 'admin' && (ke === 'sip_log' || ke === 'app_log'))">
 		    <span class="col-sm-4 text-right"> {{langtxt(ke)}} </span>
 		    <input type="text" maxlength="128" class="col-sm-6" title="{{ke}}: {{somename_$index}}"
 			ng-change="changeItem(k,ke,somename_$index)"
@@ -32,17 +33,24 @@
 			ng-options="item for item in cfgItemType(ke)"
 			ng-model="key_$index" ng-init="key_$index=va">
 		    </select>
-		    <select class="col-sm-6" title="{{ke}}: {{ke_$index.val}}"
-			ng-change="changeItem(k,ke,ke_$index)"
+		</div>
+	    </li>
+
+	    <!-- TIMEZONE -->
+	    <li>
+		<h4><span class="label label-info">{{langtxt('timezones')}}</span></h4>
+		<div class="row">
+		    <span class="col-sm-4 text-right"> {{langtxt('timezone')}} </span>
+		    <select class="col-sm-6" title="timezone: {{currTz.val}}"
+			ng-change="changeItem('timezones','timezone',ke_timezone)"
 			ng-model-options="{ updateOn: 'change' }"
-			ng-show="ke === 'timezone' && cfgItemType(ke).length > 0"
-			ng-options="item.text for item in tzValues track by item.val"
-			ng-model="ke_$index" ng-init="ke_$index=currTz">
+			ng-options="item.text group by item.area for item in tzValues track by item.val"
+			ng-model="ke_timezone">
 		    </select>
-		  </span>
 		</div>
 	    </li>
 	    </ul>
+
 	  </div>
 	</div>
 
@@ -92,5 +100,6 @@
 	$("#cfgApply").click(function() {
 	    $("#confirmModal").modal();
 	});
+	
     });
     </script>
