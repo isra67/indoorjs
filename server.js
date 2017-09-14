@@ -426,6 +426,8 @@ var socketServer = net.createServer(function(c) {
 	return;
     }
 
+    d = d.replace(/\</g,"&lt;").replace(/\>/g,"&gt;");
+
     webClients.forEach(function(cl){
 	try { cl.emit('messages', d); } catch (err) {}
     });

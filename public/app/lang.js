@@ -7,7 +7,7 @@ var langstr = {
     , 'noresp': 'Unanswered outgoing calls'
 
     // config:
-    , 'screen_saver': 'Screen saver [min]'
+    , 'screen_saver': 'Screen saver [0..45] min'
     , 'watches': 'Watches'
     , 'brightness': 'Brightness [20..255]'
     , 'dnd_mode': 'Do not disturb mode'

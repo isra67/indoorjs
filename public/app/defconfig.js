@@ -1,7 +1,7 @@
 
 var defcfg = {
     // config:
-      'screen_saver': {'type':'input','range':'0-120','position':1}
+      'screen_saver': {'type':'input','range':'0-45','position':1}
 ////    , 'back_light': 'Turn display off [0/1]'
     , 'watches': {'type':'sel','options':'analog,digital,none','position':2}
     , 'brightness': {'type':'input','range':'20-255','position':3}
