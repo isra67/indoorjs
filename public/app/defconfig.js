@@ -51,6 +51,7 @@ var defcfg = {
     , 'app_log': {'type':'sel','options':'debug,info,warning,error','position':2}
     , 'sip_log': {'type':'sel','options':'debug,info,warning,error','position':3}
     , 'tunnel_flag': {'type':'sel','options':'0,1','position':4}
+    , 'autoupdate': {'type':'sel','options':'0,1','position':5}
     , 'timezone': {'type':'timezone','position':1}
 
 };

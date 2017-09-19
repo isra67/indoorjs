@@ -56,6 +56,7 @@ var langstr = {
     , 'sip_log': 'SIP logging level'
     , 'app_log': 'App logging level'
     , 'tunnel_flag': 'Enable/disable remote access'
+    , 'autoupdate': 'Install updates automatically'
     , 'command': 'Application'
     , 'sip': 'SIP'
     , 'devices': 'Audio device'
