@@ -37,8 +37,11 @@
     $(function() {
         highlightMenuItem();
 
+	var portn = '' + window.location.port;
+	if (portn === '' || portn === '0') portn = '80';
+
 	if (socket == null)
-	    socket = io.connect('http://' + window.location.hostname, {'forceNew': true});
+	    socket = io.connect('http://' + window.location.hostname + ':' + portn, {'forceNew': true});
 
         socket.on('connect', function() {
 	    $('#logcontent').html("Connected...<br/>");

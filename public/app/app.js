@@ -1,5 +1,5 @@
 
-var VERSION_STR = 'WebIndoor 1.0';
+var VERSION_STR = 'WebIndoor 1.1';
 
 var app = angular.module('myApp', ['ngRoute', 'ngFileUpload']);
 

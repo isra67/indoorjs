@@ -26,7 +26,7 @@ var express = require('express')
   , MUSIC_DIR = SOUNDS + 'ring_'
   , sockets = -1
 
-  , serverAppVersionString = '1.0.0.0'
+  , serverAppVersionString = '1.0.0.1'
   , appStatusStruct = {}
 
   , webClients = [];

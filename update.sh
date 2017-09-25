@@ -14,18 +14,23 @@ cd /root/app
 cp -f public/storage/store.dat /root/tmp
 
 ## synchronize
+#if [ -z "$1" ]; then
+##    git fetch https://github.com/isra67/indoorjs.git master
+#    git fetch https://github.com/isra67/indoorjs.git
+#else
+##    git fetch https://isra67:$1@github.com/isra67/indoorjs.git master
+#    git fetch https://isra67:$1@github.com/isra67/indoorjs.git
+#fi
+#git reset --hard ##gh/master
+#git clean -dn
 if [ -z "$1" ]; then
-    git fetch https://github.com/isra67/indoorjs.git master
+#    git pull --rebase https://github.com/isra67/indoorjs.git master
+    git pull --rebase https://github.com/isra67/indoorjs.git
 else
-    git fetch https://isra67:$1@github.com/isra67/indoorjs.git master
+#    git pull --rebase  https://isra67:$1@github.com/isra67/indoorjs.git master
+    git pull --rebase  https://isra67:$1@github.com/isra67/indoorjs.git
 fi
-git reset --hard ##gh/master
 git clean -dn
-if [ -z "$1" ]; then
-    git pull --rebase https://github.com/isra67/indoorjs.git master
-else
-    git pull --rebase  https://isra67:$1@github.com/isra67/indoorjs.git master
-fi
 
 ## install NPM files
 npm install --silent
