@@ -28,8 +28,8 @@ cd /root/app
 #VER_REMOTE=`git log -1 --oneline origin/master...HEAD`
 VER_REMOTE=`git ls-remote https://github.com/isra67/indoorjs.git | grep master | cut -f 1`
 GITDIFF=`git cherry -v | grep $VER_REMOTE`
-len=${#GITDIFF}
-if [ $len -lt 3 ]
+#len=${#GITDIFF}
+if [ "$GITDIFF" != "" ]
 
 #if [ "$VER_LOCAL" == "$VER_REMOTE" ]
 then
