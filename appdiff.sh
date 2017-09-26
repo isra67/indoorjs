@@ -17,7 +17,9 @@ BRANCH="master"
 ## working dir
 cd /root/app
 
-GITDIFF=`git diff --name-only --ignore-space-change gh/$BRANCH`
+##GITDIFF=`git diff --name-only --ignore-space-change gh/$BRANCH`
+#GITDIFF=`git diff --name-only --ignore-space-change`
+GITDIFF=`git log master..origin/master`
 len=${#GITDIFF}
 
 if [ $len -lt 3 ]
