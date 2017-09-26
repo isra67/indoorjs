@@ -13,6 +13,9 @@ cd /root/app
 ## backup app file
 cp -f public/storage/store.dat /root/tmp
 
+## stash all changes
+git reset --hard
+
 ## synchronize
 #if [ -z "$1" ]; then
 ##    git fetch https://github.com/isra67/indoorjs.git master
@@ -22,7 +25,7 @@ cp -f public/storage/store.dat /root/tmp
 #    git fetch https://isra67:$1@github.com/isra67/indoorjs.git
 #fi
 #git reset --hard ##gh/master
-#git clean -dn
+
 if [ -z "$1" ]; then
 #    git pull --rebase https://github.com/isra67/indoorjs.git master
     git pull --rebase https://github.com/isra67/indoorjs.git
@@ -32,11 +35,11 @@ else
 fi
 git clean -dn
 
-## install NPM files
-npm install --silent
-
 ## restore app file from backup
 cp -f /root/tmp/store.dat public/storage
 
+## install NPM files
+npm install --silent
+
 ## save from cache
-sync
+#sync
