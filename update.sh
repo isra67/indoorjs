@@ -7,6 +7,15 @@
 #
 # #################################################################################
 
+
+## working repository
+if [ -z "$1" ]; then
+    REPO="inoteska"
+else
+    REPO="$1"
+fi
+
+
 ## working dir
 cd /root/app
 
@@ -26,13 +35,14 @@ git reset --hard
 #fi
 #git reset --hard ##gh/master
 
-if [ -z "$1" ]; then
-#    git pull --rebase https://github.com/isra67/indoorjs.git master
-    git pull --rebase https://github.com/isra67/indoorjs.git
-else
-#    git pull --rebase  https://isra67:$1@github.com/isra67/indoorjs.git master
-    git pull --rebase  https://isra67:$1@github.com/isra67/indoorjs.git
-fi
+#if [ -z "$1" ]; then
+##    git pull --rebase https://github.com/isra67/indoorjs.git master
+#    git pull --rebase https://github.com/isra67/indoorjs.git
+#else
+##    git pull --rebase  https://isra67:$1@github.com/isra67/indoorjs.git master
+#    git pull --rebase  https://isra67:$1@github.com/isra67/indoorjs.git
+#fi
+git pull --rebase https://$REPO@github.com/$REPO/indoorjs.git
 git clean -dn
 
 ## restore app file from backup
