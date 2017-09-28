@@ -8,30 +8,14 @@
 # #################################################################################
 
 
-## PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
-
-
-BRANCH="master"
-
-
 ## working dir
 cd /root/app
 
-###GITDIFF=`git diff --name-only --ignore-space-change gh/$BRANCH`
-##GITDIFF=`git diff --name-only --ignore-space-change`
-#GITDIFF=`git log master..origin/master -1`
-#len=${#GITDIFF}
 
-#if [ $len -lt 3 ]
+VER_LOCAL=`git log -1 | grep commit | awk '{print $2}'`
+VER_REMOTE=`git ls-remote https://github.com/isra67/indoorjs.git | grep HEAD | cut -f 1`
 
-#VER_LOCAL=`git log -1 --oneline origin/master`
-#VER_REMOTE=`git log -1 --oneline origin/master...HEAD`
-VER_REMOTE=`git ls-remote https://github.com/isra67/indoorjs.git | grep master | cut -f 1`
-GITDIFF=`git cherry -v | grep $VER_REMOTE`
-#len=${#GITDIFF}
-if [ "$GITDIFF" != "" ]
-
-#if [ "$VER_LOCAL" == "$VER_REMOTE" ]
+if [ "$VER_LOCAL" == "$VER_REMOTE" ]
 then
 
     echo "Nothing to do"
