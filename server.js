@@ -50,6 +50,32 @@ function iniStatStruct() {
     appStatusStruct.rpiSN = store.get('system.rpi');
     appStatusStruct.lockFlag = ['?','?','?','?'];
     appStatusStruct.videoFlag = [];
+    appStatusStruct.sdcard = '?';
+    appStatusStruct.uptime = '?';
+
+    exec_process.result('df -h | grep /dev/root | awk \'{printf "%s / %s", $2, $4}\'',
+	function(err,res1){
+//	  console.log('res1:',res1);
+	  appStatusStruct.sdcard = res1;
+/*	  var sdinfo = res1.toString().split(' ');
+	  try {
+	  appStatusStruct.sdcard = sdinfo[1] + ' / ' + sdinfo[3];
+	  } catch(e) {
+	  appStatusStruct.sdcard = res1;
+	  }//*/
+	});
+
+    exec_process.result('uptime -p',
+	function(err,a){
+//	  console.log(a);
+	  var ut = a.toString().split(', ');
+	  try {
+	  appStatusStruct.uptime = ut[0] + ', ' + ut[1];
+	  } catch(e) {
+	  appStatusStruct.uptime = a;
+	  }
+	});
+
 }
 
 
@@ -359,7 +385,9 @@ var socketServer = net.createServer(function(c) {
 	    appStatusStruct.ipaddr = msg.substr('IPADDR: '.length);
 	} else
 	if (msg.indexOf('STRUCT:') == 0) {
-	    iniStatStruct();
+//	    iniStatStruct();
+
+//	    appStatusStruct.appConnectionFlag = 1;
 
 	    msg = msg.replace(/u\'/g, '\'');
 	    msg = msg.replace(/\'/g, '\"');		// "

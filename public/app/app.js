@@ -423,7 +423,7 @@ app.controller('serviceCtrl', function ($scope, $rootScope, $location, services)
 	services.fullAppUpdate().then(function(data){
 	    $scope.msg = data.data;
 	}, function(err) {
-//	    console.log('restartApp:',err);
+//	    console.log('full app update:',err);
 	    $scope.msg = err;
 	    $location.path('/');
 	});
@@ -493,6 +493,8 @@ app.controller('mainCtrl', function ($scope, $rootScope, $location, services) {
 	$scope.webVer = VERSION_STR;
 	$scope.ip_addr = '?';
 	$scope.mac_addr = '?';
+	$scope.uptime = '?';
+	$scope.sdinfo = '?';
     };
 
     //**  */
@@ -513,6 +515,8 @@ app.controller('mainCtrl', function ($scope, $rootScope, $location, services) {
 		$scope.serverVer = d.serverVer;
 		$scope.ip_addr = d.ipaddr;//.split(' ',1)[0];
 		$scope.mac_addr = d.macaddr;
+		$scope.uptime = d.uptime;
+		$scope.sdinfo = d.sdcard;
 		for (var i = 0; i < d.lockFlag.length; i++) {
 		    if (d.lockFlag[i] != undefined) {
 			var l1 = Number('0x'+d.lockFlag[i]) & 0x0f,  l2 = (Number('0x'+d.lockFlag[i]) >> 4) & 0x0f;

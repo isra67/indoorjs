@@ -36,6 +36,10 @@
 	      <td>MAC address</td><td>{{mac_addr}}</td>
 	    </tr>
 	    <tr>
+	      <td>Up time</td><td>{{uptime}}</td>
+	      <td>SD card size / available</td><td>{{sdinfo}}</td>
+	    </tr>
+	    <tr>
 	      <td colspan="4"> &nbsp; </td>
 	    </tr>
 	    <tr>
@@ -76,6 +80,7 @@
         $('#statustable td:nth-child(odd)').css({'font-weight':'bold','font-size':'16px'});
         $('#statustable td:nth-child(even)').css({'font-size':'14px'});
         $('#statustable tr:first td').css({'font-weight':'bold','font-size':'20px'});
+	$('#statustable td').css({'white-space':'nowrap'});
 
     });
     </script>
