@@ -26,7 +26,7 @@ var express = require('express')
   , MUSIC_DIR = SOUNDS + 'ring_'
   , sockets = -1
 
-  , serverAppVersionString = '1.0.0.1'
+  , serverAppVersionString = '1.0.0.2'
   , appStatusStruct = {}
 
   , webClients = [];
@@ -48,8 +48,8 @@ function iniStatStruct() {
     appStatusStruct.serverVer = serverAppVersionString;
     appStatusStruct.indoorVer = store.get('system.indoorver');
     appStatusStruct.rpiSN = store.get('system.rpi');
-    appStatusStruct.lockFlag = ['?','?','?','?'];
-    appStatusStruct.videoFlag = [];
+    appStatusStruct.videoFlag = ['?','?','?','?'];
+    appStatusStruct.lockFlag = [0x55,0x55,0x55,0x55];
     appStatusStruct.sdcard = '?';
     appStatusStruct.uptime = '?';
 
@@ -57,12 +57,6 @@ function iniStatStruct() {
 	function(err,res1){
 //	  console.log('res1:',res1);
 	  appStatusStruct.sdcard = res1;
-/*	  var sdinfo = res1.toString().split(' ');
-	  try {
-	  appStatusStruct.sdcard = sdinfo[1] + ' / ' + sdinfo[3];
-	  } catch(e) {
-	  appStatusStruct.sdcard = res1;
-	  }//*/
 	});
 
     exec_process.result('uptime -p',
@@ -70,9 +64,9 @@ function iniStatStruct() {
 //	  console.log(a);
 	  var ut = a.toString().split(', ');
 	  try {
-	  appStatusStruct.uptime = ut[0] + ', ' + ut[1];
+	    appStatusStruct.uptime = ut.length > 1 ? ut[0] + ', ' + ut[1] : a;
 	  } catch(e) {
-	  appStatusStruct.uptime = a;
+	    appStatusStruct.uptime = a;
 	  }
 	});
 
@@ -262,6 +256,8 @@ app.post('/app/auth', function(req, res) {
 //app.get('/app/auth/:usr/:pwd', function(req, res) {
     var ret = 'Err', usr = req.body.usr, pwd = req.body.pwd, a, k, o;
 
+    iniStatStruct();
+
     a  = store.get('user');
 
     if (a === undefined || a.name === undefined || a.p4ssw0rd === undefined) {
@@ -409,14 +405,14 @@ var socketServer = net.createServer(function(c) {
 			if (appStatusStruct.lockFlag.length > appStatusStruct.videoFlag.length)
 			    appStatusStruct.lockFlag.length = appStatusStruct.videoFlag.length;
 		    } else if (k === 'LOCK') {
-			appStatusStruct.lockFlag = appStatusStruct.videoFlag;
+//			appStatusStruct.lockFlag = appStatusStruct.videoFlag;
 			for (var kk in struct[k]) {
 			    if (struct[k].hasOwnProperty(kk)) {
 				appStatusStruct.lockFlag[Number(kk)] = struct[k][kk];
 			    }
 			}
-//			if (appStatusStruct.lockFlag.length > appStatusStruct.videoFlag.length)
-//			    appStatusStruct.lockFlag.length = appStatusStruct.videoFlag.length;
+			if (appStatusStruct.lockFlag.length > appStatusStruct.videoFlag.length)
+			    appStatusStruct.lockFlag.length = appStatusStruct.videoFlag.length;
 		    } else if (k === 'INDOORVER') appStatusStruct.indoorVer = struct[k];
 		    else if (k === 'RPISN') appStatusStruct.rpiSN = struct[k];
 		    else if (k === 'MACADDR') appStatusStruct.macaddr = struct[k];

@@ -51,5 +51,3 @@ cp -f /root/tmp/store.dat public/storage
 ## install NPM files
 npm install --silent
 
-## save from cache
-#sync

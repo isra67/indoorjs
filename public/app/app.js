@@ -519,9 +519,14 @@ app.controller('mainCtrl', function ($scope, $rootScope, $location, services) {
 		$scope.sdinfo = d.sdcard;
 		for (var i = 0; i < d.lockFlag.length; i++) {
 		    if (d.lockFlag[i] != undefined) {
-			var l1 = Number('0x'+d.lockFlag[i]) & 0x0f,  l2 = (Number('0x'+d.lockFlag[i]) >> 4) & 0x0f;
-			$scope.lockFlag[i] = l1 ? 'U' : 'L';
-			$scope.lockFlag[i] = $scope.lockFlag[i] + (l2 ? 'U' : 'L');
+			var lf = Number('0x'+d.lockFlag[i]);
+			if (lf == 0x55) { // unknown device address or error
+			    $scope.lockFlag[i] = '..';
+			} else {
+			    var l1 = lf & 0x0f,  l2 = (lf >> 4) & 0x0f;
+			    $scope.lockFlag[i] = l1 ? 'U' : 'L';
+			    $scope.lockFlag[i] = $scope.lockFlag[i] + (l2 ? 'U' : 'L');
+			}
 		    } else {
 			$scope.lockFlag[i] = '..';
 		    }
