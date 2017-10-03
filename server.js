@@ -52,15 +52,30 @@ function iniStatStruct() {
     appStatusStruct.lockFlag = [0x55,0x55,0x55,0x55];
     appStatusStruct.sdcard = '?';
     appStatusStruct.uptime = '?';
+    appStatusStruct.updates = '';
+
+    exec_process.result('/root/app/checkupdate.sh',
+	function(err,data) {
+//	  console.log('data:',data);
+	  appStatusStruct.updates = data.indexOf('equal') > -1 ? '' : 'new';
+
+	  if (appStatusStruct.updates == '') {
+	    exec_process.result('/root/indoorpy/checkupdate.sh',
+		function(err,datai) {
+//		console.log('datai:',datai);
+		appStatusStruct.updates = datai.indexOf('equal') > -1 ? '' : 'new';
+	    });
+	  }
+	});
 
     exec_process.result('df -h | grep /dev/root | awk \'{printf "%s / %s", $2, $4}\'',
-	function(err,res1){
+	function(err,res1) {
 //	  console.log('res1:',res1);
 	  appStatusStruct.sdcard = res1;
 	});
 
     exec_process.result('uptime -p',
-	function(err,a){
+	function(err,a) {
 //	  console.log(a);
 	  var ut = a.toString().split(', ');
 	  try {
@@ -219,15 +234,17 @@ app.post('/app/timezoneupdate', function(req, res) {
 
 // app update
 app.post('/app/fullappupdate', function(req, res) {
-    console.log('fullappupdate');
-//return;
+//    console.log('fullappupdate');
     exec_process.result('./../indoorpy/appdiff.sh',
 	function(err,data) {
-	    console.log('fullappupdate #1', err, data);
+//	    console.log('fullappupdate #1', err, data);
 	    if (!err) {
 		exec_process.result('./appdiff.sh',
 		    function(err,data) {
-			console.log('fullappupdate #2', err, data);
+//			console.log('fullappupdate #2', err, data);
+
+			iniStatStruct();
+
 			res.json(err?'ERROR #2':'OK');
 		    });
 	    } else res.json('ERROR #1');

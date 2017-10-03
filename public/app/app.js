@@ -517,6 +517,7 @@ app.controller('mainCtrl', function ($scope, $rootScope, $location, services) {
 		$scope.mac_addr = d.macaddr;
 		$scope.uptime = d.uptime;
 		$scope.sdinfo = d.sdcard;
+		$scope.updates = d.updates;
 		for (var i = 0; i < d.lockFlag.length; i++) {
 		    if (d.lockFlag[i] != undefined) {
 			var lf = Number('0x'+d.lockFlag[i]);

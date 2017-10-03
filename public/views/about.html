@@ -18,7 +18,9 @@
 	 <table id="statustable" class="table table-striped">
 	  <tbody>
 	    <tr class="text-center">
-	      <td colspan="4">Build version <span id="buildVer"></span></td>
+	      <td colspan="4">
+		Build version <span id="buildVer"></span> &nbsp;<span id="newVer"><sup title="New update is available">{{updates}}</sup></span>
+	      </td>
 	    </tr>
 	    <tr>
 	      <td colspan="4"> &nbsp; </td>
@@ -82,5 +84,6 @@
         $('#statustable tr:first td').css({'font-weight':'bold','font-size':'20px'});
 	$('#statustable td').css({'white-space':'nowrap'});
 
+	$('#newVer').css({'color':'red'});
     });
     </script>
