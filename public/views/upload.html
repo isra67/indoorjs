@@ -19,8 +19,9 @@
 		    <td>{{ x.name }}</td><td>{{ x.size }}</td>
 		    <td>
 			<button type="button" class="btn btn-default btn-sm"
-			    title="Remove file {{$index + 1}} from Indoor device"
+			    title="Remove file {{selectedToneName}} from Indoor device"
 			    onclick='$("#confirmRemoveModal").modal()'
+			    ng-disabled="selectedToneName === x.name"
 			    ng-click="removeTone($index)">
 			    <span class="glyphicon glyphicon-trash"></span> Remove
 			</button>

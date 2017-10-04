@@ -106,7 +106,7 @@ app.controller('configCtrl', function ($scope, $rootScope, $location, services) 
     //**  */
     $scope.changeItem = function(sect,item,vals) {
 	if (sect === 'timezones' && item === 'timezone') vals = vals.val;
-	console.log('changeItem:',sect,item,vals);
+//	console.log('changeItem:',sect,item,vals);
 	$scope.updateCfg = 1;
 	$scope.customers[sect][item] = vals;
     };
@@ -115,6 +115,8 @@ app.controller('configCtrl', function ($scope, $rootScope, $location, services) 
     $scope.saveConfigItems = function() {
 //	console.log('saveConfigItems 1:');
 	$scope.updateCfg = 2;
+
+	$rootScope.actualConfig = $scope.customers;
 
 	var updNetwork = 0, updLogs = 0, updTunnel = 0, updRotation = 0, updTimezone = 0, cfg;
 
@@ -229,6 +231,7 @@ app.controller('configCtrl', function ($scope, $rootScope, $location, services) 
 	}
 
         $scope.customers = sortcfg;
+	$rootScope.actualConfig = $scope.customers;
 	$scope.configbackup = JSON.parse(JSON.stringify(cfg));
 	$scope.keys = Object.keys(cfg);
 
@@ -252,7 +255,7 @@ app.controller('configCtrl', function ($scope, $rootScope, $location, services) 
 	$scope.inits = 0;
 	$scope.currTz = $rootScope.tzValues.find(function(elem){ return elem.val === $scope.customers['timezones']['timezone'] });
 	$scope.ke_timezone = $scope.currTz;
-	console.log('currTz:',$scope.currTz, $scope.ke_timezone);
+//	console.log('currTz:',$scope.currTz, $scope.ke_timezone);
     });
 
     if ($rootScope.login == 0) { $location.path('/login') }
@@ -265,13 +268,14 @@ app.controller('uploadCtrl', ['$scope', '$rootScope', 'Upload', '$timeout', '$lo
 
     $scope.tones = [];
     $scope.toRemove = -1;
+    $scope.selectedToneName = $rootScope.actualConfig['devices']['ringtone'];
 
     //**  */
     $scope.getToneList = function() {
 	$scope.tones = [];
 	$scope.toRemove = -1;
 	services.getToneList().then(function(data){
-//	    console.log('getToneList:',data.data);
+//	    console.log('getToneList:',data.data, $scope.selectedToneName);
 	    $scope.tones = data.data;
 	}, function(err) {
 	    console.log('getToneList:',err);
@@ -289,7 +293,6 @@ app.controller('uploadCtrl', ['$scope', '$rootScope', 'Upload', '$timeout', '$lo
 //	console.log('removeTone:', id, $scope.tones[$scope.toRemove].name);
 	services.removeTone($scope.tones[$scope.toRemove].name).then(function(data){
 //	    console.log('removeTone:',data.data);
-//	    $scope.tones.splice($scope.toRemove, 1);
 	    $scope.getToneList();
 	}, function(err) {
 	    console.log('removeToneId:',err);
@@ -683,17 +686,18 @@ app.config(function($routeProvider, $locationProvider, $httpProvider) {
 
 
 //** ******************************************************************************* */
-app.run(['$location', '$rootScope', function($location, $rootScope) {
+app.run(['$location', '$rootScope', 'services', function($location, $rootScope, services) {
     $rootScope.login = 0;
     $rootScope.username = '';
     $rootScope.msgs = VERSION_STR;
+    $rootScope.actualConfig = {};
 
     $rootScope.tzValues = filltimezone('','Europe/Brussels');
-/*    var tmp = [];
-    for (var i = 0; i < $rootScope.tzValues.length; i++) {
-	if (tmp.indexOf($rootScope.tzValues[i].area) < 0) tmp.push($rootScope.tzValues[i].area);
-    }
-    $rootScope.tzAreas = tmp;//*/
+
+    services.getIniItems().then(function(data) { // get actual configuration from device
+	$rootScope.actualConfig = data.data;
+    });
+
 
     $rootScope.$on('$routeChangeSuccess', function (event, current, previous) {
         $rootScope.title = current.$$route.title;
