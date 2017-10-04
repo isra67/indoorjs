@@ -209,6 +209,7 @@ app.controller('configCtrl', function ($scope, $rootScope, $location, services) 
 	var cfg = data.data, sortcfg = {};
 
 	$scope.inits = 1;
+//	console.log('getIniItems:',$scope.inits);
 
 	// sorting keys in INI:
 	for (var sect in cfg) {
@@ -236,10 +237,9 @@ app.controller('configCtrl', function ($scope, $rootScope, $location, services) 
 	$scope.keys = Object.keys(cfg);
 
 	var t = defcfg['ringtone']['options'];
-	if (t.split(',').length > 3) return;
-
-	// read customers' tones
-	services.getToneList().then(function(data){
+	if (t.split(',').length <= 3) {
+	  // read customers' tones
+	  services.getToneList().then(function(data){
 	    var a = data.data;
 	    for (var tone in a) {
 		if (a.hasOwnProperty(tone)) {
@@ -248,9 +248,10 @@ app.controller('configCtrl', function ($scope, $rootScope, $location, services) 
 		}
 	    }
 //	    console.log('getIniItems:',data.data, defcfg['ringtone']['options']);
-	}, function(err) {
+	  }, function(err) {
 	    console.log('getIniItems:',err);
-	});
+	  });
+	}
 
 	$scope.inits = 0;
 	$scope.currTz = $rootScope.tzValues.find(function(elem){ return elem.val === $scope.customers['timezones']['timezone'] });
@@ -490,11 +491,11 @@ app.controller('mainCtrl', function ($scope, $rootScope, $location, services) {
 	$scope.audioFlag = '?';
 	$scope.lockFlag = [];
 	$scope.videoFlag = [];
-	$scope.rpiSN = '?';
+	$scope.rpiSN = $rootScope.actualConfig['about']['serial'];
 	$scope.indoorVer = '?';
 	$scope.serverVer = '?';
 	$scope.webVer = VERSION_STR;
-	$scope.ip_addr = '?';
+	$scope.ip_addr = $rootScope.actualConfig['system']['ipaddress'];
 	$scope.mac_addr = '?';
 	$scope.uptime = '?';
 	$scope.sdinfo = '?';
@@ -503,8 +504,8 @@ app.controller('mainCtrl', function ($scope, $rootScope, $location, services) {
     //**  */
     $scope.getStatusApp = function() {
 	services.getAppStatus().then(function(data) {
-	    var d = JSON.parse(data.data);
-//	    console.log('getAppStatus:',d);
+	    var d = JSON.parse(data.data), guiMode = $rootScope.actualConfig['gui']['screen_mode'];
+//	    console.log('getAppStatus:', d);
 //	    $scope.statusInfos = d;
 	    if (d.appConnectionFlag == '1') {
 //		$scope.reinitScopes();
@@ -513,14 +514,18 @@ app.controller('mainCtrl', function ($scope, $rootScope, $location, services) {
 		$scope.sipRegistrationFlag = d.sipRegistrationFlag;
 		$scope.audioFlag = d.audioFlag;
 		$scope.videoFlag = d.videoFlag;
-//		$scope.lockFlag = d.lockFlag;
+		$scope.lockFlag = d.lockFlag;
 		$scope.indoorVer = d.indoorVer;
 		$scope.serverVer = d.serverVer;
-		$scope.ip_addr = d.ipaddr;//.split(' ',1)[0];
+		$scope.ip_addr = d.ipaddr;
 		$scope.mac_addr = d.macaddr;
 		$scope.uptime = d.uptime;
 		$scope.sdinfo = d.sdcard;
 		$scope.updates = d.updates;
+
+		while ($scope.videoFlag.length < guiMode) { $scope.videoFlag.push('?'); }
+		while ($scope.lockFlag.length < guiMode) { $scope.lockFlag.push('..'); }
+
 		for (var i = 0; i < d.lockFlag.length; i++) {
 		    if (d.lockFlag[i] != undefined) {
 			var lf = Number('0x'+d.lockFlag[i]);
@@ -535,7 +540,7 @@ app.controller('mainCtrl', function ($scope, $rootScope, $location, services) {
 			$scope.lockFlag[i] = '..';
 		    }
 		}
-		$scope.lockFlag.length = $scope.videoFlag.length;
+		$scope.lockFlag.length = $scope.videoFlag.length = guiMode;
 	    } else {
 		if ($scope.appConnectionFlag == 'OK') $scope.appConnectionFlag = '?';
 		else $scope.reinitScopes();
@@ -692,11 +697,12 @@ app.run(['$location', '$rootScope', 'services', function($location, $rootScope, 
     $rootScope.msgs = VERSION_STR;
     $rootScope.actualConfig = {};
 
-    $rootScope.tzValues = filltimezone('','Europe/Brussels');
-
     services.getIniItems().then(function(data) { // get actual configuration from device
 	$rootScope.actualConfig = data.data;
+//	$rootScope.tzValues = filltimezone('','Europe/Brussels');
     });
+
+    $rootScope.tzValues = filltimezone('','Europe/Brussels');
 
 
     $rootScope.$on('$routeChangeSuccess', function (event, current, previous) {
