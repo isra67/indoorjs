@@ -107,10 +107,11 @@ app.post('/upload', function(req, res) {
     return res.json('ERROR: No files were uploaded');//res.status(400).send('No files were uploaded.');
 
   // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
-  var sampleFile = req.files.file; //sampleFile
+  var sampleFile = req.files.file,
+    filename = sampleFile.name.replace(/[^.a-z0-9]/gi, '_').toLowerCase();
 
-  // Use the mv() method to place the file somewhere on your server 
-  sampleFile.mv(MUSIC_DIR + sampleFile.name.replace(/[^a-z0-9]/gi, '_').toLowerCase(), function(err) {
+  // Use the mv() method to place the file somewhere on your server
+  sampleFile.mv(MUSIC_DIR + filename, function(err) {
     if (err)
       return res.json('Server ERROR: ' + err);// res.status(500).send(err);
 
@@ -234,14 +235,17 @@ app.post('/app/timezoneupdate', function(req, res) {
     exec_process.result('./../indoorpy/settimezone.sh '+tz, function(){res.json('OK');});
 });
 
-// app update
-app.post('/app/fullappupdate', function(req, res) {
-//    console.log('fullappupdate');
-    exec_process.result('./../indoorpy/appdiff.sh',
+// app update - development = isra67 || production = inoteska
+app.post('/app/fullappupdate/:repo', function(req, res) {
+    var repo = req.params.repo;
+    if (repo !== undefined && repo.length && 'development'.indexOf(repo) > -1)
+	repo = 'isra67' else repo = 'inoteska';
+    console.log('fullappupdate: ', repo);
+    exec_process.result('./../indoorpy/appdiff.sh ' + repo,
 	function(err,data) {
 //	    console.log('fullappupdate #1', err, data);
 	    if (!err) {
-		exec_process.result('./appdiff.sh',
+		exec_process.result('./appdiff.sh ' + repo,
 		    function(err,data) {
 //			console.log('fullappupdate #2', err, data);
 

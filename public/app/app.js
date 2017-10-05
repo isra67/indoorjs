@@ -8,7 +8,7 @@ var app = angular.module('myApp', ['ngRoute', 'ngFileUpload']);
 app.factory("services", ['$http', function($http) {
     var serviceBase = '/app/'
       , obj = {}
-      , headercfg = {headers : { 'Expires': '-1', 'Pragma': 'no-cache'}}; //{ headers : { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;' }};
+      , headercfg = {headers : { 'Expires': '-1', 'Pragma': 'no-cache'}};
 //      , headercfg = {}; //{ headers : { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;' }};
 
     //**  */
@@ -44,14 +44,11 @@ app.factory("services", ['$http', function($http) {
     obj.factoryResetConfig = function() { return $http.post(serviceBase + 'reset2factorysettings', headercfg) }
 
     //**  */
-    obj.fullAppUpdate = function() { return $http.post(serviceBase + 'fullappupdate', headercfg) }
+    obj.fullAppUpdate = function(repo) { return $http.post(serviceBase + 'fullappupdate/' + repo, headercfg) }
 
     //**  */
     obj.updateIniItem = function(sect,item,vals) {
         return $http.post(serviceBase + 'update', {sect: sect, item: item, vals: vals}, headercfg);
-//		.then(function(status) {
-//            return status.data;
-//        });
     };
 
     //**  */
@@ -65,14 +62,10 @@ app.factory("services", ['$http', function($http) {
     };
 
     //**  */
-    obj.updateTunnel = function(flag) {
-        return $http.post(serviceBase + 'tunnelupdate', {flag: flag}, headercfg);
-    };
+    obj.updateTunnel = function(flag) { return $http.post(serviceBase + 'tunnelupdate', {flag: flag}, headercfg); };
 
     //**  */
-    obj.updateTimezone = function(tz) {
-        return $http.post(serviceBase + 'timezoneupdate', {tz: tz}, headercfg);
-    };
+    obj.updateTimezone = function(tz) { return $http.post(serviceBase + 'timezoneupdate', {tz: tz}, headercfg); };
 
     return obj;
 }]);
@@ -87,9 +80,6 @@ app.controller('configCtrl', function ($scope, $rootScope, $location, services) 
     $scope.defcfgkeys = Object.keys(defcfg);
     $scope.inits = 1;
     $scope.currTz = '';
-
-//    $rootScope.tzValues.length = 100;
-//    console.log('tzValues:',$rootScope.tzValues.length);
 
     //**  */
     $scope.cfgItemType = function(key) {
@@ -113,7 +103,6 @@ app.controller('configCtrl', function ($scope, $rootScope, $location, services) 
 
     //**  */
     $scope.saveConfigItems = function() {
-//	console.log('saveConfigItems 1:');
 	$scope.updateCfg = 2;
 
 	$rootScope.actualConfig = $scope.customers;
@@ -153,7 +142,6 @@ app.controller('configCtrl', function ($scope, $rootScope, $location, services) 
 	    }
 	}
 
-//	console.log('changeItem:',updNetwork, updLogs, updRotation, updTimezone);
 	if (updLogs) {
 	    cfg = $scope.customers['service'];
 //	    console.log('saveConfigItems: updLogs', cfg['app_log']);
@@ -236,10 +224,13 @@ app.controller('configCtrl', function ($scope, $rootScope, $location, services) 
 	$scope.configbackup = JSON.parse(JSON.stringify(cfg));
 	$scope.keys = Object.keys(cfg);
 
-	var t = defcfg['ringtone']['options'];
-	if (t.split(',').length <= 3) {
-	  // read customers' tones
-	  services.getToneList().then(function(data){
+	var t = defcfg['ringtone']['options'].split(',');
+	if (t.length > 3) {
+	    defcfg['ringtone']['options'] = t.slice(0, 3).join(','); // del customers tones
+	}
+
+	// read customers' tones
+	services.getToneList().then(function(data){
 	    var a = data.data;
 	    for (var tone in a) {
 		if (a.hasOwnProperty(tone)) {
@@ -250,8 +241,7 @@ app.controller('configCtrl', function ($scope, $rootScope, $location, services) 
 //	    console.log('getIniItems:',data.data, defcfg['ringtone']['options']);
 	  }, function(err) {
 	    console.log('getIniItems:',err);
-	  });
-	}
+	});
 
 	$scope.inits = 0;
 	$scope.currTz = $rootScope.tzValues.find(function(elem){ return elem.val === $scope.customers['timezones']['timezone'] });
@@ -424,7 +414,9 @@ app.controller('serviceCtrl', function ($scope, $rootScope, $location, services)
     //**  */
     $scope.fullApplicationUpdate = function() {
 	$scope.reinitScopes();
-	services.fullAppUpdate().then(function(data){
+	var repo = 'production';
+	try { repo = $rootScope.actualConfig['service']['update_repo']; } catch (e) { repo = 'production'; }
+	services.fullAppUpdate(repo).then(function(data){
 	    $scope.msg = data.data;
 	}, function(err) {
 //	    console.log('full app update:',err);
@@ -699,7 +691,6 @@ app.run(['$location', '$rootScope', 'services', function($location, $rootScope, 
 
     services.getIniItems().then(function(data) { // get actual configuration from device
 	$rootScope.actualConfig = data.data;
-//	$rootScope.tzValues = filltimezone('','Europe/Brussels');
     });
 
     $rootScope.tzValues = filltimezone('','Europe/Brussels');
