@@ -239,7 +239,7 @@ app.post('/app/timezoneupdate', function(req, res) {
 app.post('/app/fullappupdate/:repo', function(req, res) {
     var repo = req.params.repo;
     if (repo !== undefined && repo.length && 'development'.indexOf(repo) > -1)
-	repo = 'isra67' else repo = 'inoteska';
+	repo = 'isra67'; else repo = 'inoteska';
     console.log('fullappupdate: ', repo);
     exec_process.result('./../indoorpy/appdiff.sh ' + repo,
 	function(err,data) {
