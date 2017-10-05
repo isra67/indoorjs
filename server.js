@@ -181,7 +181,9 @@ app.post('/app/update', function(req, res) {
     parser.load(INI_FILE);
     parser.param([sect, item], vals);    // update the Indoor config
     parser.write();
-    res.json('OK');
+
+    exec_process.result("sed --in-place '/^licencekey=[0-9a-z\-]*$/ s/=/ = /' " + INI_FILE,
+	function(){res.json('OK');});
 });
 
 // kivy INI update
