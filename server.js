@@ -54,19 +54,27 @@ function iniStatStruct() {
     appStatusStruct.uptime = '?';
     appStatusStruct.updates = '';
 
-    exec_process.result('/root/app/checkupdate.sh',
+    exec_process.result("cat " + INI_FILE + " | grep update_repo",
+      function(err,d) {
+      var repo = (err) ? 'production' : d;
+      repo = (repo.indexOf('development') > 0) ? 'isra67' : 'inoteska';
+
+      console.log('d:', d, 'repo:', repo);
+
+      exec_process.result('/root/app/checkupdate.sh ' + repo,
 	function(err,data) {
-//	  console.log('data:',data);
+	  console.log('app:',data);
 	  appStatusStruct.updates = data.indexOf('equal') > -1 ? '' : 'new';
 
 	  if (appStatusStruct.updates == '') {
-	    exec_process.result('/root/indoorpy/checkupdate.sh',
+	    exec_process.result('/root/indoorpy/checkupdate.sh ' + repo,
 		function(err,datai) {
-//		console.log('datai:',datai);
+		console.log('py:',datai);
 		appStatusStruct.updates = datai.indexOf('equal') > -1 ? '' : 'new';
 	    });
 	  }
 	});
+    });
 
     exec_process.result('df -h | grep /dev/root | awk \'{printf "%s / %s", $2, $4}\'',
 	function(err,res1) {
