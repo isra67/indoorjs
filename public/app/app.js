@@ -414,6 +414,9 @@ app.controller('serviceCtrl', function ($scope, $rootScope, $location, services)
     //**  */
     $scope.fullApplicationUpdate = function() {
 	$scope.reinitScopes();
+
+	$scope.msg = '<h2>Wait...</h2>';
+
 	var repo = 'production';
 	try { repo = $rootScope.actualConfig['service']['update_repo']; } catch (e) { repo = 'production'; }
 	services.fullAppUpdate(repo).then(function(data){
@@ -501,6 +504,11 @@ app.controller('mainCtrl', function ($scope, $rootScope, $location, services) {
 //	    $scope.statusInfos = d;
 	    if (d.appConnectionFlag == '1') {
 //		$scope.reinitScopes();
+		if ($scope.sipRegistrationFlag != '1') {
+		    services.getIniItems().then(function(data) { // get actual configuration from device
+			$rootScope.actualConfig = data.data;
+		    });
+		}
 		$scope.rpiSN = d.rpiSN;
 		$scope.sipFlag = d.sipFlag;
 		$scope.sipRegistrationFlag = d.sipRegistrationFlag;
