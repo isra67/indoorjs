@@ -18,7 +18,7 @@
 	    <li ng-repeat="k in keys" ng-show="k !== 'timezones'">
 		<h4><span class="label label-info">{{langtxt(k)}}</span></h4>
 		<div ng-repeat="(ke,va) in customers[k]" class="row"
-		     ng-hide="(va.indexOf('button_') > -1) || (ke === 'uptime') || (username == 'admin' && (ke === 'sip_log' || ke === 'app_log' || ke === 'tunnel_flag') || ke === 'update_repo'))">
+		     ng-hide="(va.indexOf('button_') > -1) || (ke === 'uptime') || (username == 'admin' && (ke === 'sip_log' || ke === 'app_log' || ke === 'tunnel_flag' || ke === 'update_repo'))">
 		    <span class="col-sm-4 text-right"> {{langtxt(ke)}} </span>
 		    <input type="text" maxlength="128" class="col-sm-6" title="{{ke}}: {{somename_$index}}"
 			ng-change="changeItem(k,ke,somename_$index)"
