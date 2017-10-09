@@ -5,8 +5,8 @@ var defcfg = {
 ////    , 'back_light': 'Turn display off [0/1]'
     , 'watches': {'type':'sel','options':'analog,digital,none','position':2}
     , 'brightness': {'type':'input','range':'20-255','position':3}
-    , 'dnd_mode': {'type':'sel','options':'True,False','position':4}
-    , 'outgoing_calls': {'type':'sel','options':'True,False','position':5}
+    , 'dnd_mode': {'type':'sel','options':'1,0','position':4}
+    , 'outgoing_calls': {'type':'sel','options':'1,0','position':5}
     , 'sip_mode': {'type':'sel','options':'SIP server,peer-to-peer','position':1}
     , 'sip_username': {'type':'input','range':'','position':4}
     , 'sip_server_addr': {'type':'input','range':'','position':2}
@@ -50,8 +50,8 @@ var defcfg = {
     , 'masterpwd': {'type':'input','range':'','position':1}
     , 'app_log': {'type':'sel','options':'debug,info,warning,error','position':2}
     , 'sip_log': {'type':'sel','options':'debug,info,warning,error','position':3}
-    , 'tunnel_flag': {'type':'sel','options':'False,True','position':4}
-    , 'autoupdate': {'type':'sel','options':'False,True','position':5}
+    , 'tunnel_flag': {'type':'sel','options':'0,1','position':4}
+    , 'autoupdate': {'type':'sel','options':'0,1','position':5}
     , 'update_repo': {'type':'sel','options':'production,development','position':6}
     , 'timezone': {'type':'timezone','position':1}
 
