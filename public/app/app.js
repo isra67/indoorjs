@@ -415,7 +415,7 @@ app.controller('serviceCtrl', function ($scope, $rootScope, $location, services)
     $scope.fullApplicationUpdate = function() {
 	$scope.reinitScopes();
 
-	$scope.msg = '<h2>Wait...</h2>';
+	$scope.msg = 'Wait...';
 
 	var repo = 'production';
 	try { repo = $rootScope.actualConfig['service']['update_repo']; } catch (e) { repo = 'production'; }
