@@ -59,17 +59,17 @@ function iniStatStruct() {
       var repo = (err) ? 'production' : d;
       repo = (repo.indexOf('development') > 0) ? 'isra67' : 'inoteska';
 
-      console.log('d:', d, 'repo:', repo);
+//      console.log('d:', d, 'repo:', repo);
 
       exec_process.result('/root/app/checkupdate.sh ' + repo,
 	function(err,data) {
-	  console.log('app:',data);
+//	  console.log('app:',data);
 	  appStatusStruct.updates = data.indexOf('equal') > -1 ? '' : 'new';
 
 	  if (appStatusStruct.updates == '') {
 	    exec_process.result('/root/indoorpy/checkupdate.sh ' + repo,
 		function(err,datai) {
-		console.log('py:',datai);
+//		console.log('py:',datai);
 		appStatusStruct.updates = datai.indexOf('equal') > -1 ? '' : 'new';
 	    });
 	  }

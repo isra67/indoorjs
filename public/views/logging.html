@@ -53,27 +53,27 @@
 	socket.on('messages', function(data) {
 	    var FILL = 'span';
 	    if (logActive > 0) {
-		var intclass = '', ix, i, j, a;
+		var intclass = '', ix, i, j, a, LAST_IDX = 10;
 		if (data.indexOf('[DEBUG ') > -1) intclass = ' cmsg_d';
 		else if (data.indexOf('[INFO ') > -1) intclass = ' cmsg_i';
 		else if (data.indexOf('[WARNING') > -1) intclass = ' cmsg_w';
 		else if (data.indexOf('[ERROR ') > -1) intclass = ' cmsg_e';
 
-		var regexp = /.\[DEBUG /gm;
-		regexp.lastIndex = 10;
-		data = data.replace(regexp, '<br/></'+FILL+'><'+FILL+' class="dbgmsgs cmsg_d">'+ ' [DEBUG ');
-		regexp = /.\[INFO /gm;
-		regexp.lastIndex = 10;
-		data = data.replace(regexp, '<br/></'+FILL+'><'+FILL+' class="dbgmsgs cmdg_i">'+ ' [INFO ');
-		regexp = /.\[WARNING /gm;
-		regexp.lastIndex = 10;
-		data = data.replace(regexp, '<br/></'+FILL+'><'+FILL+' class="dbgmsgs cmdg_w">'+ ' [WARNING ');
-		regexp = /.\[ERROR /gm;
-		regexp.lastIndex = 10;
-		data = data.replace(regexp, '<br/></'+FILL+'><'+FILL+' class="dbgmsgs cmdg_e">'+ ' [ERROR ');
+		var regexp = /\[DEBUG /gm;
+		regexp.lastIndex = LAST_IDX;
+		data = data.replace(regexp, '</'+FILL+'><'+FILL+' class="dbgmsgs cmsg_d"><br/>'+ ' [DEBUG ');
+		regexp = /\[INFO /gm;
+		regexp.lastIndex = LAST_IDX;
+		data = data.replace(regexp, '</'+FILL+'><'+FILL+' class="dbgmsgs cmdg_i"><br/>'+ ' [INFO ');
+		regexp = /\[WARNING /gm;
+		regexp.lastIndex = LAST_IDX;
+		data = data.replace(regexp, '</'+FILL+'><'+FILL+' class="dbgmsgs cmdg_w"><br/>'+ ' [WARNING ');
+		regexp = /\[ERROR /gm;
+		regexp.lastIndex = LAST_IDX;
+		data = data.replace(regexp, '</'+FILL+'><'+FILL+' class="dbgmsgs cmdg_e"><br/>'+ ' [ERROR ');
 
 		try {
-		    $('<'+FILL+' class="dbgmsgs' + intclass + '">' + data + '<br/></'+FILL+'>').appendTo('#logcontent');
+		    $('<'+FILL+' class="dbgmsgs' + intclass + '">' + data + '</'+FILL+'>').appendTo('#logcontent');
 		    $('div#logcontent').animate({"scrollTop": $('div#logcontent')[0].scrollHeight}, 1);
 		}
 		catch(err) { }
